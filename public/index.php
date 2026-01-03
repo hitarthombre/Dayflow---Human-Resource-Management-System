@@ -26,8 +26,10 @@ $config = require __DIR__ . '/../config/database.php';
 // Set JSON content type for all responses
 header('Content-Type: application/json; charset=utf-8');
 
-// CORS Headers
-header('Access-Control-Allow-Origin: *');
+// CORS Headers - Allow credentials for session cookies
+$origin = $_SERVER['HTTP_ORIGIN'] ?? 'http://localhost:8081';
+header("Access-Control-Allow-Origin: {$origin}");
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Max-Age: 86400');
@@ -69,9 +71,9 @@ try {
 } catch (\HRMS\Exceptions\NotFoundException $e) {
     Response::error(404, 'NOT_FOUND', $e->getMessage())->send();
 } catch (\PDOException $e) {
-    error_log('Database Error: ' . $e->getMessage());
+    error_log('Database Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
     Response::error(500, 'DATABASE_ERROR', 'A database error occurred')->send();
 } catch (\Exception $e) {
     error_log('Server Error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
-    Response::error(500, 'SERVER_ERROR', 'An internal server error occurred')->send();
+    Response::error(500, 'SERVER_ERROR', 'An internal server error occurred: ' . $e->getMessage())->send();
 }

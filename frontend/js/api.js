@@ -96,7 +96,8 @@ const api = {
   auth: {
     login: (email, password) => api.post('/auth/login', { email, password }),
     logout: () => api.post('/auth/logout'),
-    me: () => api.get('/auth/me')
+    me: () => api.get('/auth/me'),
+    register: (data) => api.post('/auth/register', data)
   },
 
   // ============================================

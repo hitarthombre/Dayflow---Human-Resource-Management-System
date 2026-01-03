@@ -188,8 +188,7 @@ function renderMyPayslips(records) {
         <td colspan="6" class="text-center p-lg">
           <div class="empty-state">
             <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <line x1="12" x2="12" y1="2" y2="22"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              <text x="6" y="18" font-size="20" font-weight="bold" fill="currentColor" stroke="none">₹</text>
             </svg>
             <p class="empty-state-title">No Payslips</p>
             <p class="empty-state-text">No payslips available for the selected period.</p>
@@ -236,8 +235,7 @@ function renderPayroll(records) {
         <td colspan="6" class="text-center p-lg">
           <div class="empty-state">
             <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <line x1="12" x2="12" y1="2" y2="22"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              <text x="6" y="18" font-size="20" font-weight="bold" fill="currentColor" stroke="none">₹</text>
             </svg>
             <p class="empty-state-title">No Payroll Records</p>
             <p class="empty-state-text">No payroll has been processed for this period.</p>

@@ -80,15 +80,15 @@ class EmployeeService
             'employee_code' => $data['employee_code'],
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
+            'email' => $data['email'] ?? '',
             'date_of_birth' => $data['date_of_birth'] ?? null,
             'gender' => $data['gender'] ?? null,
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'department' => $data['department'] ?? null,
-            'position' => $data['position'] ?? null,
+            'designation' => $data['designation'] ?? $data['position'] ?? null,
             'hire_date' => $data['hire_date'] ?? date('Y-m-d'),
-            'status' => $data['status'] ?? 'active',
-            'created_at' => date('Y-m-d H:i:s')
+            'status' => $data['status'] ?? 'active'
         ];
 
         
@@ -96,7 +96,7 @@ class EmployeeService
         $userData = null;
         if (!empty($data['email'])) {
             $userData = [
-                'role_id' => $data['role_id'] ?? 2, // Default to Employee role
+                'role_id' => $data['role_id'] ?? 3, // Default to Employee role (1=Admin, 2=HR, 3=Employee)
                 'email' => $data['email'],
                 'password_hash' => password_hash($data['password'] ?? 'password123', PASSWORD_BCRYPT),
                 'status' => 'active'
@@ -139,9 +139,8 @@ class EmployeeService
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
             'department' => $data['department'] ?? null,
-            'position' => $data['position'] ?? null,
-            'status' => $data['status'] ?? null,
-            'updated_at' => date('Y-m-d H:i:s')
+            'designation' => $data['designation'] ?? $data['position'] ?? null,
+            'status' => $data['status'] ?? null
         ], fn($v) => $v !== null);
         
         // Prepare user update data

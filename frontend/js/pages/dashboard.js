@@ -28,8 +28,44 @@ function renderDashboard() {
   const isAdmin = role === 'Admin' || role === 'HR';
 
   if (isAdmin) {
-    // Admin/HR Dashboard - Full stats
+    // Admin/HR Dashboard - Full stats with clock in/out for HR
+    const isHR = role === 'HR';
+    
     mainContent.innerHTML = `
+      ${isHR ? `
+      <!-- HR Personal Clock In/Out Section -->
+      <div class="card mb-lg">
+        <div class="card-header">
+          <h3 class="card-title">My Attendance</h3>
+        </div>
+        <div class="card-body">
+          <div class="flex items-center gap-lg">
+            <div class="flex-1">
+              <div class="kpi-value" id="hr-attendance-status">--</div>
+              <div class="kpi-meta" id="hr-clock-time">--</div>
+            </div>
+            <div class="flex gap-md">
+              <button class="btn btn-primary" id="hr-clock-in-btn" onclick="clockIn()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <polyline points="9 11 12 14 22 4"></polyline>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Clock In
+              </button>
+              <button class="btn btn-outline" id="hr-clock-out-btn" onclick="clockOut()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" x2="9" y1="12" y2="12"></line>
+                </svg>
+                Clock Out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      ` : ''}
+      
       <div class="content-grid mb-lg">
         <div class="card kpi-card">
           <div class="kpi-icon" style="background-color: rgba(47, 183, 178, 0.1); color: var(--color-secondary);">
@@ -87,8 +123,7 @@ function renderDashboard() {
         <div class="card kpi-card">
           <div class="kpi-icon" style="background-color: rgba(31, 58, 95, 0.1); color: var(--color-primary);">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" x2="12" y1="2" y2="22"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              <text x="6" y="18" font-size="16" font-weight="bold" fill="currentColor" stroke="none">₹</text>
             </svg>
           </div>
           <div class="kpi-content">
@@ -169,8 +204,7 @@ function renderDashboard() {
         <div class="card kpi-card">
           <div class="kpi-icon" style="background-color: rgba(31, 58, 95, 0.1); color: var(--color-primary);">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" x2="12" y1="2" y2="22"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              <text x="6" y="18" font-size="16" font-weight="bold" fill="currentColor" stroke="none">₹</text>
             </svg>
           </div>
           <div class="kpi-content">
@@ -240,15 +274,23 @@ function renderDashboard() {
 async function loadDashboardData() {
   const role = auth.user?.role_name;
   const isAdmin = role === 'Admin' || role === 'HR';
+  const isHR = role === 'HR';
 
   if (isAdmin) {
-    await Promise.all([
+    const promises = [
       loadEmployeeStats(),
       loadAttendanceStats(),
       loadLeaveStats(),
       loadPayrollStats(),
       loadRecentLeaves()
-    ]);
+    ];
+    
+    // HR also needs to load their own attendance status
+    if (isHR) {
+      promises.push(loadHRAttendanceStatus());
+    }
+    
+    await Promise.all(promises);
   } else {
     await Promise.all([
       loadMyAttendanceStatus(),
@@ -262,6 +304,43 @@ async function loadDashboardData() {
 // ============================================
 // ADMIN/HR DASHBOARD FUNCTIONS
 // ============================================
+
+async function loadHRAttendanceStatus() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const response = await api.attendance.me({ date_from: today, date_to: today });
+    const records = response.data || [];
+    
+    const statusEl = document.getElementById('hr-attendance-status');
+    const timeEl = document.getElementById('hr-clock-time');
+    const clockInBtn = document.getElementById('hr-clock-in-btn');
+    const clockOutBtn = document.getElementById('hr-clock-out-btn');
+    
+    if (!statusEl) return; // Element doesn't exist (not HR)
+    
+    if (records.length > 0) {
+      const record = records[0];
+      statusEl.textContent = record.status === 'present' ? 'Present' : record.status;
+      statusEl.style.color = record.status === 'present' ? 'var(--color-success)' : 'var(--color-warning)';
+      
+      if (record.clock_in_time) {
+        timeEl.textContent = `In: ${record.clock_in_time}${record.clock_out_time ? ' | Out: ' + record.clock_out_time : ''}`;
+      }
+      
+      // Update button states
+      if (clockInBtn) clockInBtn.disabled = true;
+      if (clockOutBtn) clockOutBtn.disabled = !!record.clock_out_time;
+    } else {
+      statusEl.textContent = 'Not Clocked In';
+      statusEl.style.color = 'var(--color-text-muted)';
+      timeEl.textContent = 'Clock in to start your day';
+      if (clockInBtn) clockInBtn.disabled = false;
+      if (clockOutBtn) clockOutBtn.disabled = true;
+    }
+  } catch (error) {
+    console.error('Failed to load HR attendance status:', error);
+  }
+}
 
 async function loadEmployeeStats() {
   try {
@@ -474,7 +553,13 @@ async function clockIn() {
   try {
     await api.attendance.clockIn();
     toast.success('Clocked in successfully!');
-    loadMyAttendanceStatus();
+    // Refresh appropriate status based on role
+    const role = auth.user?.role_name;
+    if (role === 'HR') {
+      loadHRAttendanceStatus();
+    } else {
+      loadMyAttendanceStatus();
+    }
   } catch (error) {
     toast.error(error.message || 'Failed to clock in');
   }
@@ -484,7 +569,13 @@ async function clockOut() {
   try {
     await api.attendance.clockOut();
     toast.success('Clocked out successfully!');
-    loadMyAttendanceStatus();
+    // Refresh appropriate status based on role
+    const role = auth.user?.role_name;
+    if (role === 'HR') {
+      loadHRAttendanceStatus();
+    } else {
+      loadMyAttendanceStatus();
+    }
   } catch (error) {
     toast.error(error.message || 'Failed to clock out');
   }

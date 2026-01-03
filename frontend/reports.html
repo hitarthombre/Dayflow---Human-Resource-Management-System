@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/utilities.css">
+  <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
   <div class="app">
@@ -23,7 +24,7 @@
       <main class="main-content">
         <div class="content-grid-3">
           <!-- Employee Report -->
-          <div class="card">
+          <div class="card report-card" data-report="employee">
             <div class="card-body text-center">
               <div class="kpi-icon primary mx-auto mb-md" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -35,12 +36,20 @@
               </div>
               <h3 class="card-title mb-sm">Employee Report</h3>
               <p class="text-muted text-sm mb-md">Complete list of all employees with their details</p>
-              <button class="btn btn-outline w-full">Generate Report</button>
+              <span class="badge badge-neutral mb-sm">CSV Format</span>
+              <button class="btn btn-outline w-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+                Download CSV
+              </button>
             </div>
           </div>
 
           <!-- Attendance Report -->
-          <div class="card">
+          <div class="card report-card" data-report="attendance">
             <div class="card-body text-center">
               <div class="kpi-icon secondary mx-auto mb-md" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -50,12 +59,20 @@
               </div>
               <h3 class="card-title mb-sm">Attendance Report</h3>
               <p class="text-muted text-sm mb-md">Monthly attendance summary and statistics</p>
-              <button class="btn btn-outline w-full">Generate Report</button>
+              <span class="badge badge-neutral mb-sm">CSV Format</span>
+              <button class="btn btn-outline w-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+                Download CSV
+              </button>
             </div>
           </div>
 
           <!-- Leave Report -->
-          <div class="card">
+          <div class="card report-card" data-report="leave">
             <div class="card-body text-center">
               <div class="kpi-icon warning mx-auto mb-md" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -67,27 +84,42 @@
               </div>
               <h3 class="card-title mb-sm">Leave Report</h3>
               <p class="text-muted text-sm mb-md">Leave requests and balance summary</p>
-              <button class="btn btn-outline w-full">Generate Report</button>
+              <span class="badge badge-neutral mb-sm">CSV Format</span>
+              <button class="btn btn-outline w-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+                Download CSV
+              </button>
             </div>
           </div>
 
           <!-- Payroll Report -->
-          <div class="card">
+          <div class="card report-card" data-report="payroll">
             <div class="card-body text-center">
               <div class="kpi-icon success mx-auto mb-md" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" x2="12" y1="2" y2="22"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  <text x="12" y="17" text-anchor="middle" font-size="16" font-weight="bold" fill="currentColor" stroke="none">₹</text>
                 </svg>
               </div>
               <h3 class="card-title mb-sm">Payroll Report</h3>
               <p class="text-muted text-sm mb-md">Monthly payroll breakdown and totals</p>
-              <button class="btn btn-outline w-full">Generate Report</button>
+              <span class="badge badge-neutral mb-sm">CSV Format</span>
+              <button class="btn btn-outline w-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" x2="12" y1="15" y2="3"></line>
+                </svg>
+                Download CSV
+              </button>
             </div>
           </div>
 
           <!-- Department Report -->
-          <div class="card">
+          <div class="card report-card" data-report="department">
             <div class="card-body text-center">
               <div class="kpi-icon primary mx-auto mb-md" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -98,25 +130,40 @@
               </div>
               <h3 class="card-title mb-sm">Department Report</h3>
               <p class="text-muted text-sm mb-md">Employee distribution by department</p>
-              <button class="btn btn-outline w-full">Generate Report</button>
+              <span class="badge badge-error mb-sm">PDF Format</span>
+              <button class="btn btn-primary w-full">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" x2="8" y1="13" y2="13"></line>
+                  <line x1="16" x2="8" y1="17" y2="17"></line>
+                </svg>
+                Download PDF
+              </button>
             </div>
           </div>
 
           <!-- Custom Report -->
-          <div class="card">
+          <div class="card report-card" data-report="custom">
             <div class="card-body text-center">
               <div class="kpi-icon secondary mx-auto mb-md" style="width: 64px; height: 64px;">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" x2="8" y1="13" y2="13"></line>
-                  <line x1="16" x2="8" y1="17" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
+                  <line x1="12" x2="12" y1="18" y2="12"></line>
+                  <line x1="9" x2="15" y1="15" y2="15"></line>
                 </svg>
               </div>
               <h3 class="card-title mb-sm">Custom Report</h3>
               <p class="text-muted text-sm mb-md">Build your own custom report</p>
-              <button class="btn btn-outline w-full">Create Report</button>
+              <span class="badge badge-secondary mb-sm">Coming Soon</span>
+              <button class="btn btn-outline w-full" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                Create Report
+              </button>
             </div>
           </div>
         </div>
@@ -131,21 +178,6 @@
   <script src="js/components/toast.js"></script>
   <script src="js/components/sidebar.js"></script>
   <script src="js/components/header.js"></script>
-  <script>
-    (async function() {
-      const isAuth = await auth.requireAuth();
-      if (!isAuth) return;
-
-      sidebar.render('sidebar-container', 'reports');
-      header.render('header-container', 'Reports');
-
-      // Add click handlers for report buttons
-      document.querySelectorAll('.card .btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          toast.info('Report generation coming soon');
-        });
-      });
-    })();
-  </script>
+  <script src="js/pages/reports.js"></script>
 </body>
 </html>

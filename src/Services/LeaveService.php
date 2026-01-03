@@ -84,9 +84,9 @@ class LeaveService
         $typeBalance = array_filter($balance, fn($b) => $b['leave_type_id'] == $data['leave_type_id']);
         $typeBalance = reset($typeBalance);
         
-        if ($typeBalance && $typeBalance['remaining_days'] < $totalDays) {
+        if ($typeBalance && isset($typeBalance['remaining']) && $typeBalance['remaining'] < $totalDays) {
             throw new ValidationException([
-                'leave_type_id' => "Insufficient leave balance. Available: {$typeBalance['remaining_days']} days"
+                'leave_type_id' => "Insufficient leave balance. Available: {$typeBalance['remaining']} days"
             ]);
         }
         

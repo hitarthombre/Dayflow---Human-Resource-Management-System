@@ -69,7 +69,7 @@ class PayrollService
         $employees = $this->payrollRepository->getEmployeesForPayroll($companyId);
         
         if (empty($employees)) {
-            throw new ValidationException(['employees' => 'No employees with salary structures found']);
+            throw new ValidationException(['employees' => 'No employees with salary structures found. Please set up salary structures for employees before processing payroll.']);
         }
         
         $processed = [];

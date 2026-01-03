@@ -2,12 +2,13 @@
 /**
  * Authentication Service
  * 
- * Handles user authentication, session management, and password operations.
+ * Handles user authentication, session management, registration, and password operations.
  */
 
 namespace HRMS\Services;
 
 use HRMS\Repositories\UserRepository;
+use HRMS\Core\Database;
 use HRMS\Exceptions\AuthException;
 
 class AuthService
@@ -17,6 +18,118 @@ class AuthService
     public function __construct()
     {
         $this->userRepository = new UserRepository();
+    }
+    
+    /**
+     * Register a new company with admin user
+     */
+    public function register(array $data): array
+    {
+        $pdo = Database::getConnection();
+        
+        // Check if email already exists
+        $existingUser = $this->userRepository->findByEmail($data['email']);
+        if ($existingUser) {
+            throw new AuthException('Email address is already registered');
+        }
+        
+        // Check if registration number already exists
+        $stmt = $pdo->prepare("SELECT id FROM companies WHERE registration_number = ?");
+        $stmt->execute([$data['registration_number']]);
+        if ($stmt->fetch()) {
+            throw new AuthException('Company registration number already exists');
+        }
+        
+        try {
+            $pdo->beginTransaction();
+            
+            // 1. Create company
+            $stmt = $pdo->prepare("
+                INSERT INTO companies (name, registration_number, email, industry, company_size, status)
+                VALUES (?, ?, ?, ?, ?, 'active')
+            ");
+            $stmt->execute([
+                $data['company_name'],
+                $data['registration_number'],
+                $data['email'],
+                $data['industry'] ?? null,
+                $data['company_size'] ?? '1-10'
+            ]);
+            $companyId = (int) $pdo->lastInsertId();
+            
+            // 2. Get Admin role ID
+            $stmt = $pdo->prepare("SELECT id FROM roles WHERE name = 'Admin'");
+            $stmt->execute();
+            $role = $stmt->fetch();
+            $adminRoleId = $role ? (int) $role['id'] : 1;
+            
+            // 3. Create admin user
+            $passwordHash = $this->hashPassword($data['password']);
+            $stmt = $pdo->prepare("
+                INSERT INTO users (company_id, role_id, email, password_hash, status)
+                VALUES (?, ?, ?, ?, 'active')
+            ");
+            $stmt->execute([
+                $companyId,
+                $adminRoleId,
+                $data['email'],
+                $passwordHash
+            ]);
+            $userId = (int) $pdo->lastInsertId();
+            
+            // 4. Create employee record for admin
+            $employeeCode = 'EMP' . str_pad($userId, 5, '0', STR_PAD_LEFT);
+            $stmt = $pdo->prepare("
+                INSERT INTO employees (company_id, user_id, employee_code, first_name, last_name, email, hire_date, status)
+                VALUES (?, ?, ?, ?, ?, ?, CURDATE(), 'active')
+            ");
+            $stmt->execute([
+                $companyId,
+                $userId,
+                $employeeCode,
+                $data['first_name'],
+                $data['last_name'],
+                $data['email']
+            ]);
+            
+            // 5. Create default leave types for the company
+            $defaultLeaveTypes = [
+                ['Annual Leave', 20, 1],
+                ['Sick Leave', 10, 1],
+                ['Personal Leave', 5, 1],
+                ['Unpaid Leave', 0, 0]
+            ];
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO leave_types (company_id, name, annual_allocation, is_paid)
+                VALUES (?, ?, ?, ?)
+            ");
+            
+            foreach ($defaultLeaveTypes as $leaveType) {
+                $stmt->execute([
+                    $companyId,
+                    $leaveType[0],
+                    $leaveType[1],
+                    $leaveType[2]
+                ]);
+            }
+            
+            $pdo->commit();
+            
+            // Auto-login the new user
+            $loginResult = $this->login($data['email'], $data['password']);
+            
+            return [
+                'company_id' => $companyId,
+                'user_id' => $userId,
+                'user' => $loginResult['user'],
+                'permissions' => $loginResult['permissions']
+            ];
+            
+        } catch (\PDOException $e) {
+            $pdo->rollBack();
+            throw new AuthException('Registration failed: ' . $e->getMessage());
+        }
     }
     
     /**

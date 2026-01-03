@@ -14,7 +14,7 @@ const sidebar = {
     { id: 'employees', label: 'Employees', href: 'employees.html', icon: 'users', permission: 'employee.view' },
     { id: 'attendance', label: 'Attendance', href: 'attendance.html', icon: 'clock', permission: 'attendance.view' },
     { id: 'leave', label: 'Leave Management', href: 'leave.html', icon: 'calendar', permission: 'leave.view' },
-    { id: 'payroll', label: 'Payroll', href: 'payroll.html', icon: 'dollar-sign', permission: 'payroll.view' },
+    { id: 'payroll', label: 'Payroll', href: 'payroll.html', icon: 'rupee', permission: 'payroll.view' },
     { id: 'reports', label: 'Reports', href: 'reports.html', icon: 'bar-chart-2', permission: 'employee.view' }
   ],
 
@@ -25,7 +25,7 @@ const sidebar = {
     { id: 'dashboard', label: 'Dashboard', href: 'index.html', icon: 'home', permission: null },
     { id: 'my-attendance', label: 'My Attendance', href: 'attendance.html', icon: 'clock', permission: 'attendance.view_own' },
     { id: 'my-leave', label: 'My Leave', href: 'leave.html', icon: 'calendar', permission: 'leave.view_own' },
-    { id: 'my-payroll', label: 'My Payslips', href: 'payroll.html', icon: 'dollar-sign', permission: 'payroll.view_own' }
+    { id: 'my-payroll', label: 'My Payslips', href: 'payroll.html', icon: 'rupee', permission: 'payroll.view_own' }
   ],
 
   /**
@@ -36,7 +36,7 @@ const sidebar = {
     users: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`,
     clock: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
     calendar: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" x2="16" y1="2" y2="6"></line><line x1="8" x2="8" y1="2" y2="6"></line><line x1="3" x2="21" y1="10" y2="10"></line></svg>`,
-    'dollar-sign': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+    'rupee': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><text x="12" y="17" text-anchor="middle" font-size="16" font-weight="bold" fill="currentColor" stroke="none">₹</text></svg>`,
     'bar-chart-2': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="14"></line></svg>`,
     menu: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>`
   },

@@ -1,226 +1,253 @@
-# Multi-Company HRMS (Human Resource Management System)
+# Dayflow - Human Resource Management System
 
-A comprehensive multi-tenant Human Resource Management System built with PHP and MySQL, designed for XAMPP. Multiple organizations can register on a single platform and independently manage their employees, attendance, leave, and payroll information.
+A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supports multiple companies with complete employee management, attendance tracking, leave management, payroll processing, and report generation.
 
 ## Features
 
-- **Multi-Tenant Architecture**: Complete data isolation between companies
+- **Multi-Company Support**: Each company has isolated data with tenant-based access control
 - **Role-Based Access Control**: Admin, HR, and Employee roles with granular permissions
-- **Employee Management**: Full employee lifecycle management
-- **Attendance Tracking**: Clock-in/out with automatic hours calculation
-- **Leave Management**: Custom leave types, requests, and approval workflow
-- **Payroll Processing**: Salary structures and monthly payroll records
+- **Employee Management**: Full CRUD operations for employee records
+- **Attendance Tracking**: Clock in/out with daily attendance records
+- **Leave Management**: Leave requests, approvals, and balance tracking
+- **Payroll Processing**: Salary structures and monthly payroll generation (₹ INR currency)
+- **Report Generation**: CSV exports for Employee, Attendance, Leave, Payroll reports; PDF for Department report
+- **Dynamic UI**: Smooth animations and liquid transitions for modern user experience
 
-## Technology Stack
+## Tech Stack
 
-- **Backend**: PHP 7.4+
-- **Database**: MySQL 5.7+ / MariaDB 10.2+ (XAMPP)
-- **Testing**: PHPUnit with Eris (Property-Based Testing)
+- **Backend**: PHP 8.0+ (No framework, custom MVC architecture)
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Database**: MySQL 5.7+ / MariaDB 10.2+
+- **Server**: Apache with mod_rewrite (XAMPP recommended)
+- **Currency**: Indian Rupee (₹ INR)
 
 ## Quick Start
 
 ### Prerequisites
 
-- XAMPP installed with Apache and MySQL
-- PHP 7.4 or higher
-- Composer (for dependency management)
+- XAMPP (or similar with PHP 8.0+ and MySQL)
+- Composer (PHP package manager)
 
 ### Installation
 
-1. **Clone the repository**
+1. Clone the repository to your XAMPP htdocs folder:
    ```bash
-   git clone <repository-url>
-   cd multi-company-hrms
+   cd C:\xampp\htdocs
+   git clone https://github.com/your-repo/Dayflow---Human-Resource-Management-System.git
    ```
 
-2. **Start XAMPP Services**
-   - Open XAMPP Control Panel
-   - Start Apache and MySQL
-
-3. **Create Database and Tables**
-   
-   **Option A: Using phpMyAdmin**
-   - Open http://localhost/phpmyadmin
-   - Click "Import" tab
-   - Select `database/schema.sql` and click "Go"
-   - Select `hrms_db` database
-   - Click "Import" tab again
-   - Select `database/seed.sql` and click "Go"
-
-   **Option B: Using MySQL Command Line**
+2. Install PHP dependencies:
    ```bash
-   mysql -u root < database/schema.sql
-   mysql -u root hrms_db < database/seed.sql
-   ```
-
-4. **Install PHP Dependencies**
-   ```bash
+   cd Dayflow---Human-Resource-Management-System
    composer install
    ```
 
-5. **Configure Environment**
-   ```bash
-   copy config\.env.example config\.env
-   ```
-   Edit `config/.env` with your database credentials if different from defaults.
+3. Set up the database (see [Database Setup](database/README.md))
+
+4. Configure database connection in `config/database.php` or set environment variables
+
+5. Start Apache and MySQL in XAMPP
+
+6. Access the application:
+   - Frontend: `http://localhost/Dayflow---Human-Resource-Management-System/frontend/`
+   - API: `http://localhost/Dayflow---Human-Resource-Management-System/public/api/`
 
 ## Project Structure
 
 ```
-multi-company-hrms/
-├── config/
-│   ├── database.php      # Database configuration
-│   └── .env.example      # Environment template
-├── database/
-│   ├── schema.sql        # Database schema (tables, constraints, indexes)
-│   ├── seed.sql          # Sample data for testing
-│   └── README.md         # Database documentation
-├── src/                  # PHP source code (to be implemented)
-├── tests/                # PHPUnit tests (to be implemented)
-├── composer.json         # PHP dependencies
-└── README.md             # This file
+├── config/                 # Configuration files
+│   ├── database.php       # Database connection settings
+│   ├── routes.php         # API route definitions
+│   └── permissions.php    # Permission configurations
+├── database/              # Database files
+│   ├── schema.sql         # Database schema
+│   ├── seed.sql           # Sample data
+│   └── README.md          # Database setup guide
+├── frontend/              # Frontend application
+│   ├── css/               # Stylesheets
+│   │   ├── variables.css  # CSS custom properties
+│   │   ├── base.css       # Base styles
+│   │   ├── layout.css     # Layout styles
+│   │   ├── components.css # Component styles
+│   │   ├── utilities.css  # Utility classes
+│   │   └── animations.css # Animation effects
+│   ├── js/                # JavaScript files
+│   │   ├── api.js         # API service layer
+│   │   ├── auth.js        # Authentication handling
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Page-specific logic
+│   │   └── utils/         # Utility functions
+│   └── *.html             # HTML pages
+├── public/                # Web root
+│   ├── index.php          # API entry point
+│   └── .htaccess          # URL rewriting
+├── src/                   # Backend source code
+│   ├── Controllers/       # API controllers
+│   ├── Services/          # Business logic
+│   ├── Repositories/      # Data access layer
+│   ├── Middleware/        # Request middleware
+│   ├── Core/              # Framework core classes
+│   └── Exceptions/        # Custom exceptions
+└── tests/                 # Test files
 ```
 
-## Database Schema
+## Frontend Pages
 
-### Entity-Relationship Overview
+| Page | File | Description |
+|------|------|-------------|
+| Login | `login.html` | User authentication with email/password |
+| Signup | `signup.html` | Company registration with admin account creation |
+| Dashboard | `index.html` | Overview with stats, quick actions, recent activity |
+| Employees | `employees.html` | Employee list with search, filter, add/edit/delete |
+| Attendance | `attendance.html` | Clock in/out, attendance records, calendar view |
+| Leave | `leave.html` | Leave requests, approvals, balance display |
+| Payroll | `payroll.html` | Salary records, payroll processing |
+| Profile | `profile.html` | User's own profile management |
+| Company Profile | `company-profile.html` | Company settings (Admin only) |
+| Reports | `reports.html` | Generate and download HR reports |
 
+## Reports
+
+The system supports generating various reports:
+
+| Report | Format | Description |
+|--------|--------|-------------|
+| Employee Report | CSV | Complete list of all employees with details |
+| Attendance Report | CSV | Monthly attendance summary with clock times |
+| Leave Report | CSV | All leave requests with status and reasons |
+| Payroll Report | CSV | Monthly payroll breakdown with salary details |
+| Department Report | PDF | Employee distribution by department with charts |
+
+## API Endpoints
+
+### Authentication
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/auth/register` | Register new company | No |
+| POST | `/api/auth/login` | User login | No |
+| POST | `/api/auth/logout` | User logout | Yes |
+| GET | `/api/auth/me` | Get current user | Yes |
+
+### Employees
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/employees` | List all employees | employee.view |
+| GET | `/api/employees/{id}` | Get employee details | employee.view |
+| GET | `/api/employees/me` | Get own profile | employee.view_own |
+| POST | `/api/employees` | Create employee | employee.create |
+| PUT | `/api/employees/{id}` | Update employee | employee.update |
+| PUT | `/api/employees/me` | Update own profile | employee.update_own |
+| DELETE | `/api/employees/{id}` | Delete employee | employee.delete |
+
+### Attendance
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/attendance` | List attendance records | attendance.view |
+| GET | `/api/attendance/me` | Get own attendance | attendance.view_own |
+| POST | `/api/attendance/clock-in` | Clock in | attendance.clock |
+| POST | `/api/attendance/clock-out` | Clock out | attendance.clock |
+| POST | `/api/attendance` | Create attendance record | attendance.create |
+| PUT | `/api/attendance/{id}` | Update attendance | attendance.update |
+
+### Leave
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/leave/types` | Get leave types | leave.view_own |
+| GET | `/api/leave/balance` | Get leave balance | leave.view_own |
+| GET | `/api/leave/requests` | List all requests | leave.view |
+| GET | `/api/leave/requests/me` | Get own requests | leave.view_own |
+| POST | `/api/leave/requests` | Submit leave request | leave.request |
+| PUT | `/api/leave/requests/{id}/approve` | Approve request | leave.approve |
+| PUT | `/api/leave/requests/{id}/reject` | Reject request | leave.approve |
+
+### Payroll
+| Method | Endpoint | Description | Permission |
+|--------|----------|-------------|------------|
+| GET | `/api/payroll` | List payroll records | payroll.view |
+| GET | `/api/payroll/{id}` | Get payroll details | payroll.view |
+| GET | `/api/payroll/me` | Get own payroll | payroll.view_own |
+| POST | `/api/payroll/process` | Process monthly payroll | payroll.create |
+
+## User Roles
+
+| Role | ID | Description |
+|------|-----|-------------|
+| Admin | 1 | Full access to all features and settings |
+| HR | 2 | Manage employees, attendance, leave, payroll |
+| Employee | 3 | Self-service: view own data, clock in/out, request leave |
+
+## Default Data
+
+### Default Leave Types (Created on Company Registration)
+- Annual Leave: 20 days/year (Paid)
+- Sick Leave: 10 days/year (Paid)
+- Personal Leave: 5 days/year (Paid)
+- Unpaid Leave: Unlimited (Unpaid)
+
+### Default Password
+When creating a new employee with an email, the default password is: `password123`
+
+## Configuration
+
+### Database Configuration
+
+Edit `config/database.php` or set environment variables:
+
+```php
+return [
+    'host' => getenv('DB_HOST') ?: 'localhost',
+    'port' => getenv('DB_PORT') ?: '3306',
+    'database' => getenv('DB_DATABASE') ?: 'hrms_db',
+    'username' => getenv('DB_USERNAME') ?: 'root',
+    'password' => getenv('DB_PASSWORD') ?: '',
+];
 ```
-COMPANIES (Tenant Root)
-    │
-    ├── USERS ──────────────── ROLES ──── ROLE_PERMISSIONS ──── PERMISSIONS
-    │     │
-    │     └── EMPLOYEES
-    │           │
-    │           ├── ATTENDANCE
-    │           │
-    │           ├── LEAVE_REQUESTS ──── LEAVE_TYPES
-    │           │
-    │           ├── SALARY_STRUCTURES
-    │           │
-    │           └── PAYROLL_RECORDS
+
+### API Base URL
+
+If running on a different port or path, update `frontend/js/api.js`:
+
+```javascript
+const API_BASE = '/Dayflow---Human-Resource-Management-System/public/api';
 ```
 
-### Tables
+## UI Features
 
-| Table | Description | Multi-Tenant |
-|-------|-------------|--------------|
-| roles | System roles (Admin, HR, Employee) | No |
-| permissions | Granular permissions | No |
-| role_permissions | Role-permission mappings | No |
-| companies | Tenant organizations | Root |
-| users | User accounts | Yes |
-| employees | Employee profiles | Yes |
-| attendance | Daily attendance records | Yes |
-| leave_types | Company leave categories | Yes |
-| leave_requests | Leave applications | Yes |
-| salary_structures | Compensation packages | Yes |
-| payroll_records | Monthly payroll | Yes |
-
-For detailed database documentation, see [database/README.md](database/README.md).
-
-## Multi-Tenant Isolation
-
-Every tenant-specific table includes a `company_id` column that:
-- References the `companies` table
-- Is indexed for query performance
-- Cascades on delete (company deletion removes all related data)
-- Must be included in all application queries
-
-```sql
--- Example: Always filter by company_id
-SELECT * FROM employees WHERE company_id = :company_id AND status = 'active';
-```
-
-## Default Roles & Permissions
-
-### Admin
-- Full access to all modules
-- Company settings management
-- User management
-
-### HR
-- Employee management (CRUD)
-- Attendance management
-- Leave approval
-- Payroll viewing
-- User management (limited)
-
-### Employee
-- View/update own profile
-- View own attendance
-- Submit leave requests
-- View own salary/payroll
-
-## Sample Data
-
-The seed data generates comprehensive test data for 50 companies across 5 industries:
-
-| Entity | Total Count | Per Company |
-|--------|-------------|-------------|
-| Companies | 50 | - |
-| Users/Employees | ~2,700 | 50-60 |
-| Leave Types | 500 | 10 |
-| Attendance Records | ~54,000 | ~1,080 |
-| Leave Requests | ~5,400 | ~108 |
-| Payroll Records | ~8,100 | ~162 |
-
-### Industries Covered
-- Technology (10 companies)
-- Healthcare (10 companies)
-- Finance (10 companies)
-- Retail (10 companies)
-- Manufacturing (10 companies)
-
-### Company Features
-- Each company has a unique logo (via UI Avatars API)
-- Industry-specific company profiles
-- Subscription plans (free/basic/professional/enterprise)
-
-**Test Password**: `password123` (for all users)
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Dark/Light Theme**: CSS variables for easy theming
+- **Animations**: Smooth page transitions, card hover effects, loading states
+- **Toast Notifications**: Success, error, warning, and info messages
+- **Modal Dialogs**: Confirmation dialogs and form modals
+- **Data Tables**: Sortable, filterable tables with pagination
 
 ## Development
 
 ### Running Tests
+
 ```bash
 composer test
 ```
 
-### Database Reset
-```bash
-mysql -u root < database/schema.sql
-mysql -u root hrms_db < database/seed.sql
-```
+### Debug Scripts
 
-## API Endpoints (Planned)
+Located in `public/` folder:
+- `test-db.php` - Test database connection
+- `debug-login.php` - Test login functionality
+- `debug-register.php` - Test registration
+- `debug-employees.php` - Test employee endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/auth/login | User authentication |
-| GET | /api/employees | List employees |
-| POST | /api/employees | Create employee |
-| GET | /api/attendance | List attendance |
-| POST | /api/attendance/clock | Clock in/out |
-| GET | /api/leave/requests | List leave requests |
-| POST | /api/leave/requests | Submit leave request |
-| GET | /api/payroll | List payroll records |
+## Troubleshooting
 
-## Security Features
+### Common Issues
 
-- **Password Hashing**: Bcrypt with cost factor 10
-- **Role-Based Access**: Granular permission system
-- **Data Isolation**: Company-scoped queries
-- **Input Validation**: Server-side validation
-- **SQL Injection Prevention**: Prepared statements
+1. **422 Error on Leave Request**: Ensure the company has leave types set up. New companies get default leave types automatically.
+
+2. **500 Error on API calls**: Check database connection and ensure all tables are created.
+
+3. **Session Issues**: Make sure cookies are enabled and the API allows credentials.
+
+4. **Payroll Processing Error**: Employees need salary structures set up before payroll can be processed.
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+MIT License - see [LICENSE](LICENSE) file for details.

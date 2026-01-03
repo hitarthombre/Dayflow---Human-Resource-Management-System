@@ -131,9 +131,10 @@ class EmployeeRepository extends BaseRepository
                 $userId = (int) Database::lastInsertId();
             }
             
-            // Create employee
+            // Create employee - filter out null values
             $employeeData['user_id'] = $userId;
-            $employeeId = $this->create($employeeData);
+            $filteredData = array_filter($employeeData, fn($v) => $v !== null);
+            $employeeId = $this->create($filteredData);
             
             Database::commit();
             

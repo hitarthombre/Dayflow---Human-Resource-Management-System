@@ -5,6 +5,8 @@
 let currentPage = 1;
 let totalPages = 1;
 let isAdminView = false;
+let isHR = false;
+let activeTab = 'all'; // 'all' or 'my'
 
 (async function() {
   const isAuth = await auth.requireAuth();
@@ -13,9 +15,15 @@ let isAdminView = false;
   // Check if user is admin/HR
   const role = auth.user?.role_name;
   isAdminView = role === 'Admin' || role === 'HR';
+  isHR = role === 'HR';
 
   sidebar.render('sidebar-container', isAdminView ? 'attendance' : 'my-attendance');
   header.render('header-container', isAdminView ? 'Attendance' : 'My Attendance');
+
+  // Render HR tabs if HR user
+  if (isHR) {
+    renderHRTabs();
+  }
 
   // Set default dates (current month)
   const today = new Date();
@@ -35,6 +43,44 @@ let isAdminView = false;
   loadAttendance();
   if (isAdminView) loadEmployeesForSelect();
 })();
+
+function renderHRTabs() {
+  const cardHeader = document.querySelector('.card-header');
+  if (!cardHeader) return;
+
+  // Insert tabs before the filters
+  const tabsHtml = `
+    <div class="tabs mb-md" id="attendance-tabs" style="margin-bottom: 1rem;">
+      <button class="tab-btn active" data-tab="all">All Employees</button>
+      <button class="tab-btn" data-tab="my">My Attendance</button>
+    </div>
+  `;
+  
+  cardHeader.insertAdjacentHTML('afterbegin', tabsHtml);
+
+  // Add tab click handlers
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTab = btn.dataset.tab;
+      currentPage = 1;
+      
+      // Show/hide admin controls based on tab
+      const addBtn = document.getElementById('add-attendance-btn');
+      const statusFilter = document.getElementById('status-filter');
+      if (activeTab === 'my') {
+        if (addBtn) addBtn.style.display = 'none';
+        if (statusFilter) statusFilter.parentElement.style.display = 'none';
+      } else {
+        if (addBtn) addBtn.style.display = '';
+        if (statusFilter) statusFilter.parentElement.style.display = '';
+      }
+      
+      loadAttendance();
+    });
+  });
+}
 
 function initEventListeners() {
   document.getElementById('date-from').addEventListener('change', () => {
@@ -87,8 +133,8 @@ async function loadAttendance() {
       date_to: document.getElementById('date-to').value
     };
 
-    // Only add status filter for admin view
-    if (isAdminView) {
+    // Only add status filter for admin view when viewing all employees
+    if (isAdminView && activeTab === 'all') {
       params.status = document.getElementById('status-filter').value;
     }
 
@@ -96,10 +142,14 @@ async function loadAttendance() {
       if (!params[key]) delete params[key];
     });
 
-    // Use appropriate endpoint based on role
-    const response = isAdminView 
-      ? await api.attendance.list(params)
-      : await api.attendance.me(params);
+    // Use appropriate endpoint based on role and active tab
+    let response;
+    if (isAdminView && activeTab === 'all') {
+      response = await api.attendance.list(params);
+    } else {
+      // Employee view OR HR viewing "My Attendance" tab
+      response = await api.attendance.me(params);
+    }
     
     const records = response.data || [];
     const pagination = response.pagination || {};
@@ -122,6 +172,7 @@ async function loadAttendance() {
 
 function renderAttendance(records) {
   const tbody = document.getElementById('attendance-tbody');
+  const showingMyAttendance = !isAdminView || activeTab === 'my';
 
   if (records.length === 0) {
     tbody.innerHTML = `
@@ -164,7 +215,7 @@ function renderAttendance(records) {
         </span>
       </td>
       <td>
-        ${isAdminView ? `
+        ${(isAdminView && activeTab === 'all') ? `
           <button class="btn btn-ghost btn-sm btn-icon" onclick="editAttendance(${rec.id})" title="Edit">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

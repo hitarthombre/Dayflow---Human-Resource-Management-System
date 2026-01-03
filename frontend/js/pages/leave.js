@@ -21,20 +21,17 @@ let isAdminView = false;
   // Render appropriate view
   if (isAdminView) {
     renderAdminView();
-  } else {
-    renderEmployeeView();
-  }
-
-  initEventListeners();
-  loadLeaveTypes();
-  
-  if (isAdminView) {
+    loadLeaveTypes();
     loadPendingRequests();
     loadAllRequests();
   } else {
+    renderEmployeeView();
+    loadLeaveTypes(); // Load after rendering so the select element exists
     loadMyRequests();
     loadMyBalance();
   }
+
+  initEventListeners();
 })();
 
 function renderAdminView() {
@@ -228,9 +225,19 @@ async function loadLeaveTypes() {
     const response = await api.leave.types();
     const types = response.data || [];
     
-    const select = document.getElementById('type-filter');
-    select.innerHTML = '<option value="">All Types</option>' + 
-      types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    // Populate admin view type filter if it exists
+    const typeFilter = document.getElementById('type-filter');
+    if (typeFilter) {
+      typeFilter.innerHTML = '<option value="">All Types</option>' + 
+        types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    }
+    
+    // Also populate the employee modal leave type select if it exists
+    const leaveTypeSelect = document.getElementById('leave_type_id');
+    if (leaveTypeSelect) {
+      leaveTypeSelect.innerHTML = '<option value="">Select Type</option>' + 
+        types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+    }
   } catch (error) {
     console.error('Failed to load leave types:', error);
   }

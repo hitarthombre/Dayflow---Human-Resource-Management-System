@@ -13,10 +13,14 @@ use HRMS\Core\Router;
 $router->addMiddleware('HRMS\\Middleware\\CorsMiddleware');
 
 // ============================================================
-// Authentication Routes (No auth required for login)
+// Authentication Routes (No auth required for login/register)
 // ============================================================
 
 $router->post('/api/auth/login', ['HRMS\\Controllers\\AuthController', 'login'], [
+    'auth' => false
+]);
+
+$router->post('/api/auth/register', ['HRMS\\Controllers\\AuthController', 'register'], [
     'auth' => false
 ]);
 

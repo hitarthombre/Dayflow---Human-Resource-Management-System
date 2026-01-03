@@ -60,7 +60,7 @@ const toast = {
   remove(toastEl) {
     if (!toastEl || !toastEl.parentNode) return;
     
-    toastEl.style.animation = 'slideOut 0.3s ease forwards';
+    toastEl.classList.add('removing');
     setTimeout(() => {
       if (toastEl.parentNode) {
         toastEl.parentNode.removeChild(toastEl);

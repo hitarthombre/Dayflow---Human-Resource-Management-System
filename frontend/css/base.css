@@ -113,3 +113,66 @@ table {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+
+/* ============================================
+   PAGE LOADING BAR
+   ============================================ */
+.page-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--color-secondary) 0%, 
+    var(--color-primary) 50%, 
+    var(--color-secondary) 100%);
+  background-size: 200% 100%;
+  animation: loadingFlow 1.5s ease infinite;
+  z-index: 9999;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.page-loading-bar.active {
+  transform: scaleX(0.7);
+}
+
+.page-loading-bar.complete {
+  transform: scaleX(1);
+  animation: none;
+  background: var(--color-secondary);
+}
+
+.page-loading-bar.hide {
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes loadingFlow {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Smooth page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-transition-exit {
+  opacity: 1;
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
