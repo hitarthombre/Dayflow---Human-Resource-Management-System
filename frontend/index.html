@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - HRMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/utilities.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <div id="header-container"></div>
+      
+      <main class="main-content">
+        <!-- KPI Cards -->
+        <div class="content-grid" id="kpi-cards">
+          <!-- Employee Overview -->
+          <div class="kpi-card" id="employee-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Total Employees</span>
+              <div class="kpi-icon primary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="total-employees">--</div>
+            <div class="kpi-breakdown">
+              <span class="kpi-stat success" id="active-employees">Active: --</span>
+              <span class="kpi-stat error" id="inactive-employees">Inactive: --</span>
+            </div>
+          </div>
+
+          <!-- Attendance Summary -->
+          <div class="kpi-card" id="attendance-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Today's Attendance</span>
+              <div class="kpi-icon secondary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="attendance-rate">--%</div>
+            <div class="kpi-breakdown">
+              <span class="kpi-stat success" id="present-count">Present: --</span>
+              <span class="kpi-stat error" id="absent-count">Absent: --</span>
+              <span class="kpi-stat warning" id="leave-count">On Leave: --</span>
+            </div>
+          </div>
+
+          <!-- Leave Requests -->
+          <div class="kpi-card" id="leave-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Leave Requests</span>
+              <div class="kpi-icon warning">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                  <line x1="16" x2="16" y1="2" y2="6"></line>
+                  <line x1="8" x2="8" y1="2" y2="6"></line>
+                  <line x1="3" x2="21" y1="10" y2="10"></line>
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="pending-leaves">--</div>
+            <div class="kpi-breakdown">
+              <span class="kpi-stat warning">Pending Approval</span>
+            </div>
+            <a href="leave.html" class="btn btn-outline btn-sm mt-md">View Requests</a>
+          </div>
+
+          <!-- Payroll Snapshot -->
+          <div class="kpi-card" id="payroll-card">
+            <div class="kpi-header">
+              <span class="kpi-title">Payroll This Month</span>
+              <div class="kpi-icon success">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" x2="12" y1="2" y2="22"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="kpi-value" id="payroll-total">$--</div>
+            <div class="kpi-breakdown">
+              <span class="kpi-stat" id="payroll-status">-- processed</span>
+            </div>
+            <a href="payroll.html" class="btn btn-outline btn-sm mt-md">View Payroll</a>
+          </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div class="content-grid-2 mt-lg">
+          <!-- Recent Leave Requests -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Recent Leave Requests</h3>
+              <a href="leave.html" class="btn btn-ghost btn-sm">View All</a>
+            </div>
+            <div class="card-body" id="recent-leaves">
+              <div class="empty-state">
+                <p class="text-muted">Loading...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+              <div class="flex flex-col gap-sm">
+                <a href="employees.html?action=add" class="btn btn-outline w-full justify-start">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="19" x2="19" y1="8" y2="14"></line>
+                    <line x1="22" x2="16" y1="11" y2="11"></line>
+                  </svg>
+                  Add New Employee
+                </a>
+                <a href="attendance.html" class="btn btn-outline w-full justify-start">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  View Attendance
+                </a>
+                <a href="payroll.html?action=process" class="btn btn-outline w-full justify-start">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" x2="12" y1="2" y2="22"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                  Process Payroll
+                </a>
+                <a href="reports.html" class="btn btn-outline w-full justify-start">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" x2="18" y1="20" y2="10"></line>
+                    <line x1="12" x2="12" y1="20" y2="4"></line>
+                    <line x1="6" x2="6" y1="20" y2="14"></line>
+                  </svg>
+                  Generate Reports
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components/toast.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/header.js"></script>
+  <script src="js/components/loader.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+</body>
+</html>

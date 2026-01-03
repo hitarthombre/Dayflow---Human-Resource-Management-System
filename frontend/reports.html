@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports - HRMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/utilities.css">
+</head>
+<body>
+  <div class="app">
+    <div id="sidebar-container"></div>
+    
+    <div class="main-wrapper">
+      <div id="header-container"></div>
+      
+      <main class="main-content">
+        <div class="content-grid-3">
+          <!-- Employee Report -->
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="kpi-icon primary mx-auto mb-md" style="width: 64px; height: 64px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <h3 class="card-title mb-sm">Employee Report</h3>
+              <p class="text-muted text-sm mb-md">Complete list of all employees with their details</p>
+              <button class="btn btn-outline w-full">Generate Report</button>
+            </div>
+          </div>
+
+          <!-- Attendance Report -->
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="kpi-icon secondary mx-auto mb-md" style="width: 64px; height: 64px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <h3 class="card-title mb-sm">Attendance Report</h3>
+              <p class="text-muted text-sm mb-md">Monthly attendance summary and statistics</p>
+              <button class="btn btn-outline w-full">Generate Report</button>
+            </div>
+          </div>
+
+          <!-- Leave Report -->
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="kpi-icon warning mx-auto mb-md" style="width: 64px; height: 64px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                  <line x1="16" x2="16" y1="2" y2="6"></line>
+                  <line x1="8" x2="8" y1="2" y2="6"></line>
+                  <line x1="3" x2="21" y1="10" y2="10"></line>
+                </svg>
+              </div>
+              <h3 class="card-title mb-sm">Leave Report</h3>
+              <p class="text-muted text-sm mb-md">Leave requests and balance summary</p>
+              <button class="btn btn-outline w-full">Generate Report</button>
+            </div>
+          </div>
+
+          <!-- Payroll Report -->
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="kpi-icon success mx-auto mb-md" style="width: 64px; height: 64px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" x2="12" y1="2" y2="22"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <h3 class="card-title mb-sm">Payroll Report</h3>
+              <p class="text-muted text-sm mb-md">Monthly payroll breakdown and totals</p>
+              <button class="btn btn-outline w-full">Generate Report</button>
+            </div>
+          </div>
+
+          <!-- Department Report -->
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="kpi-icon primary mx-auto mb-md" style="width: 64px; height: 64px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" x2="18" y1="20" y2="10"></line>
+                  <line x1="12" x2="12" y1="20" y2="4"></line>
+                  <line x1="6" x2="6" y1="20" y2="14"></line>
+                </svg>
+              </div>
+              <h3 class="card-title mb-sm">Department Report</h3>
+              <p class="text-muted text-sm mb-md">Employee distribution by department</p>
+              <button class="btn btn-outline w-full">Generate Report</button>
+            </div>
+          </div>
+
+          <!-- Custom Report -->
+          <div class="card">
+            <div class="card-body text-center">
+              <div class="kpi-icon secondary mx-auto mb-md" style="width: 64px; height: 64px;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" x2="8" y1="13" y2="13"></line>
+                  <line x1="16" x2="8" y1="17" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <h3 class="card-title mb-sm">Custom Report</h3>
+              <p class="text-muted text-sm mb-md">Build your own custom report</p>
+              <button class="btn btn-outline w-full">Create Report</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components/toast.js"></script>
+  <script src="js/components/sidebar.js"></script>
+  <script src="js/components/header.js"></script>
+  <script>
+    (async function() {
+      const isAuth = await auth.requireAuth();
+      if (!isAuth) return;
+
+      sidebar.render('sidebar-container', 'reports');
+      header.render('header-container', 'Reports');
+
+      // Add click handlers for report buttons
+      document.querySelectorAll('.card .btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          toast.info('Report generation coming soon');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

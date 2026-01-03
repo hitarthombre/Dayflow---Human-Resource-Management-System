@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - HRMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/utilities.css">
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      padding: var(--spacing-md);
+    }
+    
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .login-card {
+      background: var(--color-bg-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: var(--spacing-xl);
+    }
+    
+    .login-logo {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .login-logo svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .login-logo h1 {
+      font-size: var(--font-size-2xl);
+      color: var(--color-text-heading);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .login-logo p {
+      color: var(--color-text-muted);
+      font-size: var(--font-size-sm);
+      margin: 0;
+    }
+    
+    .login-form .form-group {
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .login-form .btn {
+      width: 100%;
+      padding: var(--spacing-md);
+      font-size: var(--font-size-base);
+    }
+    
+    .login-error {
+      background: var(--color-error-light);
+      color: var(--color-error);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+      font-size: var(--font-size-sm);
+      display: none;
+    }
+    
+    .login-error.show {
+      display: block;
+    }
+    
+    .login-footer {
+      text-align: center;
+      margin-top: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border);
+    }
+    
+    .login-footer p {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin: 0;
+    }
+    
+    .demo-credentials {
+      background: var(--color-bg-page);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-top: var(--spacing-md);
+      font-size: var(--font-size-xs);
+    }
+    
+    .demo-credentials strong {
+      color: var(--color-text-heading);
+    }
+  </style>
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-logo">
+          <svg viewBox="0 0 64 64" fill="none">
+            <rect width="64" height="64" rx="16" fill="#2FB7B2"/>
+            <text x="32" y="42" text-anchor="middle" fill="white" font-size="28" font-weight="bold" font-family="Inter, sans-serif">HR</text>
+          </svg>
+          <h1>Welcome Back</h1>
+          <p>Sign in to your HRMS account</p>
+        </div>
+        
+        <div class="login-error" id="login-error"></div>
+        
+        <form class="login-form" id="login-form">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              placeholder="Enter your email"
+              required
+              autocomplete="email"
+            >
+            <span class="form-error" id="email-error"></span>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input" 
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            >
+            <span class="form-error" id="password-error"></span>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" id="login-btn">
+            <span class="btn-text">Sign In</span>
+            <span class="btn-loading hidden">
+              <div class="spinner" style="width: 20px; height: 20px; border-width: 2px;"></div>
+            </span>
+          </button>
+        </form>
+        
+        <div class="login-footer">
+          <p>Multi-Company HRMS</p>
+          <div class="demo-credentials">
+            <strong>Demo Credentials:</strong><br>
+            Email: admin1@company1.com<br>
+            Password: password
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components/toast.js"></script>
+  <script>
+    // Check if already logged in
+    (async () => {
+      const isAuth = await auth.init();
+      if (isAuth) {
+        window.location.href = 'index.html';
+      }
+    })();
+
+    // Form submission
+    const form = document.getElementById('login-form');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Clear errors
+      loginError.classList.remove('show');
+      emailInput.classList.remove('error');
+      passwordInput.classList.remove('error');
+      document.getElementById('email-error').textContent = '';
+      document.getElementById('password-error').textContent = '';
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      // Validate
+      let hasError = false;
+      
+      if (!email) {
+        emailInput.classList.add('error');
+        document.getElementById('email-error').textContent = 'Email is required';
+        hasError = true;
+      } else if (!email.includes('@')) {
+        emailInput.classList.add('error');
+        document.getElementById('email-error').textContent = 'Invalid email format';
+        hasError = true;
+      }
+
+      if (!password) {
+        passwordInput.classList.add('error');
+        document.getElementById('password-error').textContent = 'Password is required';
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      // Show loading
+      loginBtn.disabled = true;
+      loginBtn.querySelector('.btn-text').classList.add('hidden');
+      loginBtn.querySelector('.btn-loading').classList.remove('hidden');
+
+      try {
+        await auth.login(email, password);
+        toast.success('Login successful! Redirecting...');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 500);
+      } catch (error) {
+        loginError.textContent = error.message || 'Invalid email or password';
+        loginError.classList.add('show');
+        
+        // Reset button
+        loginBtn.disabled = false;
+        loginBtn.querySelector('.btn-text').classList.remove('hidden');
+        loginBtn.querySelector('.btn-loading').classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
