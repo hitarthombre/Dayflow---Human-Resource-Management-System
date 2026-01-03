@@ -2,7 +2,11 @@
 
 A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supports multiple companies with complete employee management, attendance tracking, leave management, payroll processing, and report generation.
 
-## Features
+## 🚀 Live Demo
+
+Access the landing page: `frontend/landing.html`
+
+## ✨ Features
 
 - **Multi-Company Support**: Each company has isolated data with tenant-based access control
 - **Role-Based Access Control**: Admin, HR, and Employee roles with granular permissions
@@ -10,10 +14,11 @@ A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supp
 - **Attendance Tracking**: Clock in/out with daily attendance records
 - **Leave Management**: Leave requests, approvals, and balance tracking
 - **Payroll Processing**: Salary structures and monthly payroll generation (₹ INR currency)
-- **Report Generation**: CSV exports for Employee, Attendance, Leave, Payroll reports; PDF for Department report
+- **Report Generation**: CSV exports for Employee, Attendance, Leave, Payroll; PDF for Department report
 - **Dynamic UI**: Smooth animations and liquid transitions for modern user experience
+- **Landing Page**: Professional marketing page with features, pricing, and CTA sections
 
-## Tech Stack
+## 🛠 Tech Stack
 
 - **Backend**: PHP 8.0+ (No framework, custom MVC architecture)
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
@@ -21,7 +26,7 @@ A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supp
 - **Server**: Apache with mod_rewrite (XAMPP recommended)
 - **Currency**: Indian Rupee (₹ INR)
 
-## Quick Start
+## 📦 Quick Start
 
 ### Prerequisites
 
@@ -44,15 +49,16 @@ A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supp
 
 3. Set up the database (see [Database Setup](database/README.md))
 
-4. Configure database connection in `config/database.php` or set environment variables
+4. Configure database connection in `config/database.php`
 
 5. Start Apache and MySQL in XAMPP
 
 6. Access the application:
-   - Frontend: `http://localhost/Dayflow---Human-Resource-Management-System/frontend/`
+   - Landing Page: `http://localhost/Dayflow---Human-Resource-Management-System/frontend/landing.html`
+   - Dashboard: `http://localhost/Dayflow---Human-Resource-Management-System/frontend/`
    - API: `http://localhost/Dayflow---Human-Resource-Management-System/public/api/`
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 ├── config/                 # Configuration files
@@ -70,14 +76,16 @@ A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supp
 │   │   ├── layout.css     # Layout styles
 │   │   ├── components.css # Component styles
 │   │   ├── utilities.css  # Utility classes
-│   │   └── animations.css # Animation effects
+│   │   ├── animations.css # Animation effects
+│   │   └── landing.css    # Landing page styles
 │   ├── js/                # JavaScript files
 │   │   ├── api.js         # API service layer
 │   │   ├── auth.js        # Authentication handling
 │   │   ├── components/    # Reusable UI components
 │   │   ├── pages/         # Page-specific logic
 │   │   └── utils/         # Utility functions
-│   └── *.html             # HTML pages
+│   ├── landing.html       # Marketing landing page
+│   └── *.html             # Application pages
 ├── public/                # Web root
 │   ├── index.php          # API entry point
 │   └── .htaccess          # URL rewriting
@@ -91,10 +99,11 @@ A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supp
 └── tests/                 # Test files
 ```
 
-## Frontend Pages
+## 📄 Frontend Pages
 
 | Page | File | Description |
 |------|------|-------------|
+| Landing | `landing.html` | Marketing page with features, pricing, CTA |
 | Login | `login.html` | User authentication with email/password |
 | Signup | `signup.html` | Company registration with admin account creation |
 | Dashboard | `index.html` | Overview with stats, quick actions, recent activity |
@@ -106,7 +115,7 @@ A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supp
 | Company Profile | `company-profile.html` | Company settings (Admin only) |
 | Reports | `reports.html` | Generate and download HR reports |
 
-## Reports
+## 📊 Reports
 
 The system supports generating various reports:
 
@@ -116,9 +125,17 @@ The system supports generating various reports:
 | Attendance Report | CSV | Monthly attendance summary with clock times |
 | Leave Report | CSV | All leave requests with status and reasons |
 | Payroll Report | CSV | Monthly payroll breakdown with salary details |
-| Department Report | PDF | Employee distribution by department with charts |
+| Department Report | PDF | Employee distribution by department with visual charts |
 
-## API Endpoints
+### Department Report (PDF)
+The department report opens in a new window with:
+- Company branding and report header
+- Summary cards (Total Employees, Departments, Average per Dept)
+- Department distribution table with visual bar chart
+- Detailed employee list grouped by department
+- Print-friendly layout - use browser's Print > Save as PDF
+
+## 🔌 API Endpoints
 
 ### Authentication
 | Method | Endpoint | Description | Auth Required |
@@ -168,7 +185,7 @@ The system supports generating various reports:
 | GET | `/api/payroll/me` | Get own payroll | payroll.view_own |
 | POST | `/api/payroll/process` | Process monthly payroll | payroll.create |
 
-## User Roles
+## 👥 User Roles
 
 | Role | ID | Description |
 |------|-----|-------------|
@@ -176,7 +193,7 @@ The system supports generating various reports:
 | HR | 2 | Manage employees, attendance, leave, payroll |
 | Employee | 3 | Self-service: view own data, clock in/out, request leave |
 
-## Default Data
+## 📋 Default Data
 
 ### Default Leave Types (Created on Company Registration)
 - Annual Leave: 20 days/year (Paid)
@@ -187,7 +204,7 @@ The system supports generating various reports:
 ### Default Password
 When creating a new employee with an email, the default password is: `password123`
 
-## Configuration
+## ⚙️ Configuration
 
 ### Database Configuration
 
@@ -211,16 +228,17 @@ If running on a different port or path, update `frontend/js/api.js`:
 const API_BASE = '/Dayflow---Human-Resource-Management-System/public/api';
 ```
 
-## UI Features
+## 🎨 UI Features
 
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Dark/Light Theme**: CSS variables for easy theming
-- **Animations**: Smooth page transitions, card hover effects, loading states
+- **Modern Landing Page**: Professional marketing page with animations
+- **Smooth Animations**: Page transitions, card hover effects, loading states
 - **Toast Notifications**: Success, error, warning, and info messages
 - **Modal Dialogs**: Confirmation dialogs and form modals
 - **Data Tables**: Sortable, filterable tables with pagination
+- **Print-Friendly Reports**: PDF reports optimized for printing
 
-## Development
+## 🧪 Development
 
 ### Running Tests
 
@@ -235,12 +253,13 @@ Located in `public/` folder:
 - `debug-login.php` - Test login functionality
 - `debug-register.php` - Test registration
 - `debug-employees.php` - Test employee endpoints
+- `setup-leave-types.php` - Add default leave types to existing companies
 
-## Troubleshooting
+## ❓ Troubleshooting
 
 ### Common Issues
 
-1. **422 Error on Leave Request**: Ensure the company has leave types set up. New companies get default leave types automatically.
+1. **422 Error on Leave Request**: Ensure the company has leave types set up. Run `setup-leave-types.php` for existing companies.
 
 2. **500 Error on API calls**: Check database connection and ensure all tables are created.
 
@@ -248,6 +267,12 @@ Located in `public/` folder:
 
 4. **Payroll Processing Error**: Employees need salary structures set up before payroll can be processed.
 
-## License
+5. **PDF Report Not Downloading**: The department report opens in a new window. Use your browser's Print function and select "Save as PDF".
+
+## 📜 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+Made with ❤️ by Dayflow Team

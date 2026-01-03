@@ -306,6 +306,7 @@ async function generatePayrollReport() {
 
 /**
  * Generate Department Report (PDF)
+ * Opens a print-friendly page that can be saved as PDF
  */
 async function generateDepartmentReport() {
   toast.info('Generating department report...');
@@ -328,18 +329,15 @@ async function generateDepartmentReport() {
     departments[dept].push(emp);
   });
   
-  // Generate PDF content
-  const pdfContent = generateDepartmentPDF(departments, employees.length);
-  
-  // Download PDF
-  downloadPDF(pdfContent, `department_report_${new Date().toISOString().split('T')[0]}.pdf`);
-  toast.success('Department report downloaded');
+  // Generate and open PDF report
+  openPDFReport(departments, employees.length);
+  toast.success('Department report opened - Use Print > Save as PDF');
 }
 
 /**
- * Generate PDF content for department report
+ * Open a print-friendly PDF report in new window
  */
-function generateDepartmentPDF(departments, totalEmployees) {
+function openPDFReport(departments, totalEmployees) {
   const companyName = auth.user?.company_name || 'Company';
   const reportDate = new Date().toLocaleDateString('en-IN', {
     year: 'numeric',
@@ -347,161 +345,245 @@ function generateDepartmentPDF(departments, totalEmployees) {
     day: 'numeric'
   });
   
-  // Create PDF document structure
-  let yPos = 50;
-  const pageWidth = 595;
-  const pageHeight = 842;
-  const margin = 50;
-  const contentWidth = pageWidth - (margin * 2);
+  // Sort departments by employee count
+  const sortedDepts = Object.entries(departments)
+    .sort((a, b) => b[1].length - a[1].length);
   
-  // PDF header and content
-  let pdfObjects = [];
-  let contentStream = '';
+  // Calculate max for chart
+  const maxCount = Math.max(...sortedDepts.map(([, emps]) => emps.length));
   
-  // Title
-  contentStream += `BT /F1 24 Tf ${margin} ${pageHeight - yPos} Td (Department Report) Tj ET\n`;
-  yPos += 30;
+  // Generate table rows
+  const tableRows = sortedDepts.map(([dept, emps]) => {
+    const percentage = ((emps.length / totalEmployees) * 100).toFixed(1);
+    const barWidth = (emps.length / maxCount) * 100;
+    return `
+      <tr>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${escapeHtml(dept)}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; font-weight: 600;">${emps.length}</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">${percentage}%</td>
+        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+          <div style="background: #e5e7eb; border-radius: 4px; height: 20px; width: 100%;">
+            <div style="background: linear-gradient(90deg, #2FB7B2, #1F3A5F); height: 100%; width: ${barWidth}%; border-radius: 4px;"></div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
   
-  // Company and date
-  contentStream += `BT /F2 12 Tf ${margin} ${pageHeight - yPos} Td (${companyName}) Tj ET\n`;
-  yPos += 18;
-  contentStream += `BT /F2 10 Tf ${margin} ${pageHeight - yPos} Td (Generated: ${reportDate}) Tj ET\n`;
-  yPos += 30;
+  // Generate employee list by department
+  const employeesByDept = sortedDepts.map(([dept, emps]) => `
+    <div style="margin-bottom: 24px; page-break-inside: avoid;">
+      <h3 style="color: #1F3A5F; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #2FB7B2;">
+        ${escapeHtml(dept)} (${emps.length} employees)
+      </h3>
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <thead>
+          <tr style="background: #f3f4f6;">
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Code</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Name</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Designation</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Email</th>
+            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${emps.map(emp => `
+            <tr>
+              <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(emp.employee_code || '-')}</td>
+              <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(emp.first_name)} ${escapeHtml(emp.last_name)}</td>
+              <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(emp.designation || '-')}</td>
+              <td style="padding: 8px; border: 1px solid #e5e7eb;">${escapeHtml(emp.email || '-')}</td>
+              <td style="padding: 8px; border: 1px solid #e5e7eb;">
+                <span style="padding: 2px 8px; border-radius: 12px; font-size: 11px; background: ${emp.status === 'active' ? '#dcfce7' : '#fee2e2'}; color: ${emp.status === 'active' ? '#166534' : '#991b1b'};">
+                  ${emp.status || 'active'}
+                </span>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
   
-  // Summary section
-  contentStream += `BT /F1 14 Tf ${margin} ${pageHeight - yPos} Td (Summary) Tj ET\n`;
-  yPos += 20;
-  contentStream += `BT /F2 11 Tf ${margin} ${pageHeight - yPos} Td (Total Employees: ${totalEmployees}) Tj ET\n`;
-  yPos += 16;
-  contentStream += `BT /F2 11 Tf ${margin} ${pageHeight - yPos} Td (Total Departments: ${Object.keys(departments).length}) Tj ET\n`;
-  yPos += 30;
-  
-  // Department breakdown
-  contentStream += `BT /F1 14 Tf ${margin} ${pageHeight - yPos} Td (Department Breakdown) Tj ET\n`;
-  yPos += 25;
-  
-  // Table header
-  const colWidths = [200, 100, 150];
-  contentStream += drawTableRow(margin, pageHeight - yPos, colWidths, ['Department', 'Employees', 'Percentage'], true);
-  yPos += 20;
-  
-  // Draw line under header
-  contentStream += `${margin} ${pageHeight - yPos + 5} m ${margin + contentWidth} ${pageHeight - yPos + 5} l S\n`;
-  
-  // Department rows
-  Object.entries(departments)
-    .sort((a, b) => b[1].length - a[1].length)
-    .forEach(([dept, emps]) => {
-      const percentage = ((emps.length / totalEmployees) * 100).toFixed(1) + '%';
-      contentStream += drawTableRow(margin, pageHeight - yPos, colWidths, [dept, emps.length.toString(), percentage], false);
-      yPos += 18;
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Department Report - ${companyName}</title>
+      <style>
+        @media print {
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .no-print { display: none !important; }
+          .page-break { page-break-before: always; }
+        }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 40px;
+          color: #1f2937;
+          line-height: 1.5;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+          border-bottom: 3px solid #2FB7B2;
+        }
+        .logo {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .logo-icon {
+          width: 48px;
+          height: 48px;
+          background: #2FB7B2;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 18px;
+        }
+        .company-name {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1F3A5F;
+        }
+        .report-title {
+          font-size: 14px;
+          color: #6b7280;
+        }
+        .meta {
+          text-align: right;
+          font-size: 12px;
+          color: #6b7280;
+        }
+        .summary-cards {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin-bottom: 32px;
+        }
+        .summary-card {
+          background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+          border-radius: 12px;
+          padding: 20px;
+          text-align: center;
+          border: 1px solid #e2e8f0;
+        }
+        .summary-value {
+          font-size: 36px;
+          font-weight: 700;
+          color: #1F3A5F;
+        }
+        .summary-label {
+          font-size: 14px;
+          color: #64748b;
+          margin-top: 4px;
+        }
+        .section-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1F3A5F;
+          margin: 32px 0 16px;
+        }
+        .print-btn {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #2FB7B2;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(47, 183, 178, 0.3);
+        }
+        .print-btn:hover {
+          background: #259e9a;
+        }
+      </style>
+    </head>
+    <body>
+      <button class="print-btn no-print" onclick="window.print()">
+        🖨️ Print / Save as PDF
+      </button>
       
-      // Check for page break
-      if (yPos > pageHeight - 100) {
-        // Would need to handle page breaks for very long reports
-      }
-    });
+      <div class="header">
+        <div class="logo">
+          <div class="logo-icon">HR</div>
+          <div>
+            <div class="company-name">${escapeHtml(companyName)}</div>
+            <div class="report-title">Department Report</div>
+          </div>
+        </div>
+        <div class="meta">
+          <div>Generated: ${reportDate}</div>
+          <div>Dayflow HRMS</div>
+        </div>
+      </div>
+      
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="summary-value">${totalEmployees}</div>
+          <div class="summary-label">Total Employees</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">${Object.keys(departments).length}</div>
+          <div class="summary-label">Departments</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">${Math.round(totalEmployees / Object.keys(departments).length)}</div>
+          <div class="summary-label">Avg per Department</div>
+        </div>
+      </div>
+      
+      <h2 class="section-title">Department Distribution</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 32px;">
+        <thead>
+          <tr style="background: #1F3A5F; color: white;">
+            <th style="padding: 12px; text-align: left;">Department</th>
+            <th style="padding: 12px; text-align: center; width: 100px;">Employees</th>
+            <th style="padding: 12px; text-align: center; width: 100px;">Percentage</th>
+            <th style="padding: 12px; text-align: left; width: 200px;">Distribution</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+        </tbody>
+      </table>
+      
+      <div class="page-break"></div>
+      
+      <h2 class="section-title">Employees by Department</h2>
+      ${employeesByDept}
+      
+      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #9ca3af; font-size: 12px;">
+        Generated by Dayflow HRMS • ${reportDate}
+      </div>
+    </body>
+    </html>
+  `;
   
-  // Draw bottom line
-  yPos += 5;
-  contentStream += `${margin} ${pageHeight - yPos} m ${margin + contentWidth} ${pageHeight - yPos} l S\n`;
-  
-  // Build PDF
-  return buildPDF(contentStream, pageWidth, pageHeight);
+  // Open in new window
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
 }
 
 /**
- * Draw a table row in PDF
+ * Escape HTML for safe rendering
  */
-function drawTableRow(x, y, colWidths, values, isHeader) {
-  let stream = '';
-  let currentX = x;
-  const fontSize = isHeader ? 11 : 10;
-  const font = isHeader ? '/F1' : '/F2';
-  
-  values.forEach((val, i) => {
-    stream += `BT ${font} ${fontSize} Tf ${currentX} ${y} Td (${escapePDFString(val)}) Tj ET\n`;
-    currentX += colWidths[i];
-  });
-  
-  return stream;
-}
-
-/**
- * Escape special characters for PDF strings
- */
-function escapePDFString(str) {
-  return String(str)
-    .replace(/\\/g, '\\\\')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)');
-}
-
-/**
- * Build complete PDF document
- */
-function buildPDF(contentStream, width, height) {
-  const objects = [];
-  let objectNum = 1;
-  
-  // Catalog
-  objects.push(`${objectNum} 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj`);
-  objectNum++;
-  
-  // Pages
-  objects.push(`${objectNum} 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj`);
-  objectNum++;
-  
-  // Page
-  objects.push(`${objectNum} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>\nendobj`);
-  objectNum++;
-  
-  // Content stream
-  const streamContent = contentStream;
-  objects.push(`${objectNum} 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}endstream\nendobj`);
-  objectNum++;
-  
-  // Font 1 (Bold)
-  objects.push(`${objectNum} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\nendobj`);
-  objectNum++;
-  
-  // Font 2 (Regular)
-  objects.push(`${objectNum} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
-  objectNum++;
-  
-  // Build PDF structure
-  let pdf = '%PDF-1.4\n';
-  let xref = 'xref\n0 ' + (objectNum) + '\n0000000000 65535 f \n';
-  let offset = pdf.length;
-  
-  objects.forEach((obj, i) => {
-    xref += String(offset).padStart(10, '0') + ' 00000 n \n';
-    pdf += obj + '\n';
-    offset = pdf.length;
-  });
-  
-  pdf += xref;
-  pdf += `trailer\n<< /Size ${objectNum} /Root 1 0 R >>\n`;
-  pdf += 'startxref\n' + (pdf.length - xref.length - 1) + '\n%%EOF';
-  
-  return pdf;
-}
-
-/**
- * Download PDF file
- */
-function downloadPDF(pdfContent, filename) {
-  const blob = new Blob([pdfContent], { type: 'application/pdf' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
 }
 
 // Export functions for global access
