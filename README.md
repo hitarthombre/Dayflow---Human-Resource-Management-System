@@ -2,6 +2,12 @@
 
 A multi-tenant HRMS built with PHP backend and vanilla JavaScript frontend. Supports multiple companies with complete employee management, attendance tracking, leave management, payroll processing, and report generation.
 
+## 🎬 Video Demo
+
+[![Dayflow HRMS Demo](https://img.youtube.com/vi/_IyCzM0UJqE/maxresdefault.jpg)](https://youtu.be/_IyCzM0UJqE)
+
+Watch the full demo: [https://youtu.be/_IyCzM0UJqE](https://youtu.be/_IyCzM0UJqE)
+
 ## 🚀 Live Demo
 
 Access the landing page: `frontend/landing.html`
