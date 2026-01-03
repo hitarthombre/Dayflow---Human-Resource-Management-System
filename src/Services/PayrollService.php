@@ -61,8 +61,9 @@ class PayrollService
         $this->validateProcessData($data);
         
         $month = $data['month']; // Format: YYYY-MM
-        $periodStart = $month . '-01';
-        $periodEnd = date('Y-m-t', strtotime($periodStart));
+        $parts = explode('-', $month);
+        $year = (int) $parts[0];
+        $monthNum = (int) $parts[1];
         
         // Get all employees with salary structures
         $employees = $this->payrollRepository->getEmployeesForPayroll($companyId);
@@ -79,8 +80,8 @@ class PayrollService
             if ($this->payrollRepository->existsForPeriod(
                 $employee['employee_id'], 
                 $companyId, 
-                $periodStart, 
-                $periodEnd
+                $year, 
+                $monthNum
             )) {
                 $skipped[] = [
                     'employee_id' => $employee['employee_id'],
@@ -105,12 +106,11 @@ class PayrollService
             $payrollData = [
                 'company_id' => $companyId,
                 'employee_id' => $employee['employee_id'],
-                'pay_period_start' => $periodStart,
-                'pay_period_end' => $periodEnd,
-                'basic_salary' => $basicSalary,
-                'allowances' => $allowances,
+                'salary_structure_id' => $employee['salary_structure_id'],
+                'year' => $year,
+                'month' => $monthNum,
                 'gross_salary' => $grossSalary,
-                'deductions' => $deductions,
+                'total_deductions' => $deductions,
                 'net_salary' => $netSalary,
                 'status' => 'pending'
             ];
@@ -131,7 +131,7 @@ class PayrollService
             'skipped_count' => count($skipped),
             'processed' => $processed,
             'skipped' => $skipped,
-            'summary' => $this->payrollRepository->getSummary($companyId, $month)
+            'summary' => $this->payrollRepository->getSummary($companyId, $year, $monthNum)
         ];
     }
     
@@ -140,7 +140,10 @@ class PayrollService
      */
     public function getSummary(int $companyId, string $month): array
     {
-        return $this->payrollRepository->getSummary($companyId, $month);
+        $parts = explode('-', $month);
+        $year = (int) $parts[0];
+        $monthNum = (int) $parts[1];
+        return $this->payrollRepository->getSummary($companyId, $year, $monthNum);
     }
     
     /**

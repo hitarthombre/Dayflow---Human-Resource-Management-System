@@ -129,7 +129,7 @@ class AttendanceService
         $attendanceData = [
             'company_id' => $companyId,
             'employee_id' => $data['employee_id'],
-            'date' => $data['date'],
+            'attendance_date' => $data['date'],
             'clock_in_time' => $data['clock_in_time'] ?? null,
             'clock_out_time' => $data['clock_out_time'] ?? null,
             'total_hours' => $totalHours,

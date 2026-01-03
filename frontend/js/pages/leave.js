@@ -5,48 +5,222 @@
 let currentPage = 1;
 let totalPages = 1;
 let pendingAction = null;
+let isAdminView = false;
 
 (async function() {
   const isAuth = await auth.requireAuth();
   if (!isAuth) return;
 
-  sidebar.render('sidebar-container', 'leave');
-  header.render('header-container', 'Leave Management');
+  // Check if user is admin/HR
+  const role = auth.user?.role_name;
+  isAdminView = role === 'Admin' || role === 'HR';
+
+  sidebar.render('sidebar-container', isAdminView ? 'leave' : 'my-leave');
+  header.render('header-container', isAdminView ? 'Leave Management' : 'My Leave');
+
+  // Render appropriate view
+  if (isAdminView) {
+    renderAdminView();
+  } else {
+    renderEmployeeView();
+  }
 
   initEventListeners();
   loadLeaveTypes();
-  loadPendingRequests();
-  loadAllRequests();
+  
+  if (isAdminView) {
+    loadPendingRequests();
+    loadAllRequests();
+  } else {
+    loadMyRequests();
+    loadMyBalance();
+  }
 })();
 
+function renderAdminView() {
+  // Admin view is already in the HTML, no changes needed
+}
+
+function renderEmployeeView() {
+  const mainContent = document.querySelector('.main-content');
+  mainContent.innerHTML = `
+    <!-- Leave Balance -->
+    <div class="card mb-lg">
+      <div class="card-header">
+        <h3 class="card-title">My Leave Balance</h3>
+        <button class="btn btn-primary" id="request-leave-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mr-sm">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Request Leave
+        </button>
+      </div>
+      <div class="card-body" id="leave-balance-container">
+        <div class="text-center p-lg"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- My Leave Requests -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">My Leave Requests</h3>
+        <div class="flex gap-md">
+          <select class="form-select" id="status-filter" style="width: auto;">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Leave Type</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Days</th>
+                <th>Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="requests-tbody">
+              <tr><td colspan="6" class="text-center p-lg"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer flex items-center justify-between">
+        <span class="text-sm text-muted" id="pagination-info">Showing 0-0 of 0</span>
+        <div class="flex gap-sm">
+          <button class="btn btn-outline btn-sm" id="prev-btn" disabled>Previous</button>
+          <button class="btn btn-outline btn-sm" id="next-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Leave Modal -->
+    <div class="modal" id="leave-modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Request Leave</h3>
+          <button class="btn btn-ghost btn-icon" onclick="closeLeaveModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <form id="leave-form">
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Leave Type</label>
+              <select class="form-select" id="leave_type_id" required>
+                <option value="">Select Type</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-input" id="start_date" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-input" id="end_date" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reason</label>
+              <textarea class="form-input" id="reason" rows="3" placeholder="Enter reason for leave..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeLeaveModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+}
+
 function initEventListeners() {
-  document.getElementById('status-filter').addEventListener('change', () => {
-    currentPage = 1;
-    loadAllRequests();
-  });
+  // These elements may not exist depending on the view
+  const statusFilter = document.getElementById('status-filter');
+  const typeFilter = document.getElementById('type-filter');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const confirmModal = document.getElementById('confirm-modal');
+  const requestLeaveBtn = document.getElementById('request-leave-btn');
+  const leaveModal = document.getElementById('leave-modal');
+  const leaveForm = document.getElementById('leave-form');
 
-  document.getElementById('type-filter').addEventListener('change', () => {
-    currentPage = 1;
-    loadAllRequests();
-  });
+  if (statusFilter) {
+    statusFilter.addEventListener('change', () => {
+      currentPage = 1;
+      if (isAdminView) {
+        loadAllRequests();
+      } else {
+        loadMyRequests();
+      }
+    });
+  }
 
-  document.getElementById('prev-btn').addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
+  if (typeFilter) {
+    typeFilter.addEventListener('change', () => {
+      currentPage = 1;
       loadAllRequests();
-    }
-  });
+    });
+  }
 
-  document.getElementById('next-btn').addEventListener('click', () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      loadAllRequests();
-    }
-  });
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        if (isAdminView) {
+          loadAllRequests();
+        } else {
+          loadMyRequests();
+        }
+      }
+    });
+  }
 
-  document.getElementById('confirm-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'confirm-modal') closeConfirmModal();
-  });
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        if (isAdminView) {
+          loadAllRequests();
+        } else {
+          loadMyRequests();
+        }
+      }
+    });
+  }
+
+  if (confirmModal) {
+    confirmModal.addEventListener('click', (e) => {
+      if (e.target.id === 'confirm-modal') closeConfirmModal();
+    });
+  }
+
+  if (requestLeaveBtn) {
+    requestLeaveBtn.addEventListener('click', openLeaveModal);
+  }
+
+  if (leaveModal) {
+    leaveModal.addEventListener('click', (e) => {
+      if (e.target.id === 'leave-modal') closeLeaveModal();
+    });
+  }
+
+  if (leaveForm) {
+    leaveForm.addEventListener('submit', handleLeaveSubmit);
+  }
 }
 
 async function loadLeaveTypes() {
@@ -314,4 +488,174 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text || '';
   return div.innerHTML;
+}
+
+
+// ============================================
+// EMPLOYEE VIEW FUNCTIONS
+// ============================================
+
+async function loadMyBalance() {
+  const container = document.getElementById('leave-balance-container');
+  if (!container) return;
+
+  try {
+    const response = await api.leave.balance();
+    const balances = response.data || [];
+
+    if (balances.length === 0) {
+      container.innerHTML = `<p class="text-muted text-center">No leave balance information available.</p>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="content-grid-3">
+        ${balances.map(b => `
+          <div class="kpi-card" style="padding: 1rem; border: 1px solid var(--color-border-light); border-radius: 8px;">
+            <div class="kpi-content">
+              <div class="kpi-value">${b.remaining || 0}</div>
+              <div class="kpi-label">${escapeHtml(b.leave_type_name)}</div>
+              <div class="kpi-meta">of ${b.total_days || 0} days</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (error) {
+    console.error('Failed to load leave balance:', error);
+    container.innerHTML = `<p class="text-error text-center">Failed to load leave balance</p>`;
+  }
+}
+
+async function loadMyRequests() {
+  const tbody = document.getElementById('requests-tbody');
+  if (!tbody) return;
+  
+  tbody.innerHTML = `<tr><td colspan="6" class="text-center p-lg"><div class="spinner"></div></td></tr>`;
+
+  try {
+    const params = {
+      page: currentPage,
+      per_page: 20,
+      status: document.getElementById('status-filter')?.value || ''
+    };
+
+    Object.keys(params).forEach(key => {
+      if (!params[key]) delete params[key];
+    });
+
+    const response = await api.leave.myRequests(params);
+    const requests = response.data || [];
+    const pagination = response.pagination || {};
+
+    totalPages = pagination.total_pages || 1;
+    updatePaginationInfo(pagination);
+    renderMyRequests(requests);
+  } catch (error) {
+    console.error('Failed to load my requests:', error);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center p-lg">
+          <p class="text-error">Failed to load leave requests</p>
+          <button class="btn btn-outline btn-sm mt-sm" onclick="loadMyRequests()">Retry</button>
+        </td>
+      </tr>
+    `;
+  }
+}
+
+function renderMyRequests(requests) {
+  const tbody = document.getElementById('requests-tbody');
+
+  if (requests.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center p-lg">
+          <div class="empty-state">
+            <p class="empty-state-title">No Leave Requests</p>
+            <p class="empty-state-text">You haven't submitted any leave requests yet.</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = requests.map(req => `
+    <tr>
+      <td>${escapeHtml(req.leave_type_name)}</td>
+      <td>${formatDate(req.start_date)}</td>
+      <td>${formatDate(req.end_date)}</td>
+      <td>${req.total_days}</td>
+      <td>${escapeHtml(req.reason) || '-'}</td>
+      <td>
+        <span class="badge ${getStatusBadgeClass(req.status)}">
+          ${req.status}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openLeaveModal() {
+  const form = document.getElementById('leave-form');
+  if (form) form.reset();
+  
+  // Set default dates
+  const today = new Date().toISOString().split('T')[0];
+  const startDate = document.getElementById('start_date');
+  const endDate = document.getElementById('end_date');
+  if (startDate) startDate.value = today;
+  if (endDate) endDate.value = today;
+  
+  // Populate leave types
+  populateLeaveTypes();
+  
+  const modal = document.getElementById('leave-modal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeLeaveModal() {
+  const modal = document.getElementById('leave-modal');
+  if (modal) modal.classList.remove('open');
+}
+
+async function populateLeaveTypes() {
+  const select = document.getElementById('leave_type_id');
+  if (!select) return;
+
+  try {
+    const response = await api.leave.types();
+    const types = response.data || [];
+    
+    select.innerHTML = '<option value="">Select Type</option>' + 
+      types.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  } catch (error) {
+    console.error('Failed to load leave types:', error);
+  }
+}
+
+async function handleLeaveSubmit(e) {
+  e.preventDefault();
+
+  const data = {
+    leave_type_id: document.getElementById('leave_type_id').value,
+    start_date: document.getElementById('start_date').value,
+    end_date: document.getElementById('end_date').value,
+    reason: document.getElementById('reason').value || undefined
+  };
+
+  Object.keys(data).forEach(key => {
+    if (data[key] === undefined) delete data[key];
+  });
+
+  try {
+    await api.leave.create(data);
+    toast.success('Leave request submitted successfully');
+    closeLeaveModal();
+    loadMyRequests();
+    loadMyBalance();
+  } catch (error) {
+    toast.error(error.message || 'Failed to submit leave request');
+  }
 }

@@ -7,15 +7,25 @@ const sidebar = {
   overlay: null,
 
   /**
-   * Navigation items configuration
+   * Navigation items configuration with required permissions
    */
   navItems: [
-    { id: 'dashboard', label: 'Dashboard', href: 'index.html', icon: 'home' },
-    { id: 'employees', label: 'Employees', href: 'employees.html', icon: 'users' },
-    { id: 'attendance', label: 'Attendance', href: 'attendance.html', icon: 'clock' },
-    { id: 'leave', label: 'Leave Management', href: 'leave.html', icon: 'calendar' },
-    { id: 'payroll', label: 'Payroll', href: 'payroll.html', icon: 'dollar-sign' },
-    { id: 'reports', label: 'Reports', href: 'reports.html', icon: 'bar-chart-2' }
+    { id: 'dashboard', label: 'Dashboard', href: 'index.html', icon: 'home', permission: null },
+    { id: 'employees', label: 'Employees', href: 'employees.html', icon: 'users', permission: 'employee.view' },
+    { id: 'attendance', label: 'Attendance', href: 'attendance.html', icon: 'clock', permission: 'attendance.view' },
+    { id: 'leave', label: 'Leave Management', href: 'leave.html', icon: 'calendar', permission: 'leave.view' },
+    { id: 'payroll', label: 'Payroll', href: 'payroll.html', icon: 'dollar-sign', permission: 'payroll.view' },
+    { id: 'reports', label: 'Reports', href: 'reports.html', icon: 'bar-chart-2', permission: 'employee.view' }
+  ],
+
+  /**
+   * Employee-specific navigation (self-service)
+   */
+  employeeNavItems: [
+    { id: 'dashboard', label: 'Dashboard', href: 'index.html', icon: 'home', permission: null },
+    { id: 'my-attendance', label: 'My Attendance', href: 'attendance.html', icon: 'clock', permission: 'attendance.view_own' },
+    { id: 'my-leave', label: 'My Leave', href: 'leave.html', icon: 'calendar', permission: 'leave.view_own' },
+    { id: 'my-payroll', label: 'My Payslips', href: 'payroll.html', icon: 'dollar-sign', permission: 'payroll.view_own' }
   ],
 
   /**
@@ -32,18 +42,38 @@ const sidebar = {
   },
 
   /**
+   * Get navigation items based on user role
+   */
+  getNavItems() {
+    const role = auth.user?.role_name;
+    
+    // Admin and HR see full menu
+    if (role === 'Admin' || role === 'HR') {
+      return this.navItems;
+    }
+    
+    // Employees see self-service menu
+    return this.employeeNavItems.filter(item => 
+      !item.permission || auth.hasPermission(item.permission)
+    );
+  },
+
+  /**
    * Render sidebar
    */
   render(containerId, activePage) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    const navHtml = this.navItems.map(item => `
+    const items = this.getNavItems();
+    const navHtml = items.map(item => `
       <a href="${item.href}" class="nav-item ${item.id === activePage ? 'active' : ''}" data-page="${item.id}">
         <span class="nav-icon">${this.icons[item.icon]}</span>
         <span class="nav-label">${item.label}</span>
       </a>
     `).join('');
+
+    const roleLabel = auth.user?.role_name || 'User';
 
     container.innerHTML = `
       <aside class="sidebar" id="sidebar">
@@ -53,6 +83,9 @@ const sidebar = {
             <text x="16" y="22" text-anchor="middle" fill="white" font-size="16" font-weight="bold">HR</text>
           </svg>
           <span class="logo-text">HRMS</span>
+        </div>
+        <div class="sidebar-role">
+          <span class="role-badge">${roleLabel}</span>
         </div>
         <nav class="sidebar-nav">
           ${navHtml}

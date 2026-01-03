@@ -4,55 +4,128 @@
 
 let currentPage = 1;
 let totalPages = 1;
+let isAdminView = false;
 
 (async function() {
   const isAuth = await auth.requireAuth();
   if (!isAuth) return;
 
-  sidebar.render('sidebar-container', 'payroll');
-  header.render('header-container', 'Payroll');
+  // Check if user is admin/HR
+  const role = auth.user?.role_name;
+  isAdminView = role === 'Admin' || role === 'HR';
+
+  sidebar.render('sidebar-container', isAdminView ? 'payroll' : 'my-payroll');
+  header.render('header-container', isAdminView ? 'Payroll' : 'My Payslips');
+
+  // Render appropriate view
+  if (!isAdminView) {
+    renderEmployeeView();
+  }
 
   // Set default month to current
   const currentMonth = new Date().toISOString().slice(0, 7);
-  document.getElementById('month-filter').value = currentMonth;
-  document.getElementById('process-month').value = currentMonth;
+  const monthFilter = document.getElementById('month-filter');
+  if (monthFilter) monthFilter.value = currentMonth;
+  
+  const processMonth = document.getElementById('process-month');
+  if (processMonth) processMonth.value = currentMonth;
 
   initEventListeners();
   loadPayroll();
 })();
 
+function renderEmployeeView() {
+  const mainContent = document.querySelector('.main-content');
+  mainContent.innerHTML = `
+    <!-- My Payslips -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">My Payslips</h3>
+        <div class="flex gap-md">
+          <input type="month" class="form-input" id="month-filter" style="width: auto;">
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th>Basic Salary</th>
+                <th>Allowances</th>
+                <th>Deductions</th>
+                <th>Net Salary</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="payroll-tbody">
+              <tr><td colspan="6" class="text-center p-lg"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer flex items-center justify-between">
+        <span class="text-sm text-muted" id="pagination-info">Showing 0-0 of 0</span>
+        <div class="flex gap-sm">
+          <button class="btn btn-outline btn-sm" id="prev-btn" disabled>Previous</button>
+          <button class="btn btn-outline btn-sm" id="next-btn" disabled>Next</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function initEventListeners() {
-  document.getElementById('month-filter').addEventListener('change', () => {
-    currentPage = 1;
-    loadPayroll();
-  });
+  const monthFilter = document.getElementById('month-filter');
+  const statusFilter = document.getElementById('status-filter');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const processBtn = document.getElementById('process-btn');
+  const confirmProcessBtn = document.getElementById('confirm-process-btn');
+  const exportBtn = document.getElementById('export-btn');
+  const processModal = document.getElementById('process-modal');
 
-  document.getElementById('status-filter').addEventListener('change', () => {
-    currentPage = 1;
-    loadPayroll();
-  });
-
-  document.getElementById('prev-btn').addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
+  if (monthFilter) {
+    monthFilter.addEventListener('change', () => {
+      currentPage = 1;
       loadPayroll();
-    }
-  });
+    });
+  }
 
-  document.getElementById('next-btn').addEventListener('click', () => {
-    if (currentPage < totalPages) {
-      currentPage++;
+  if (statusFilter) {
+    statusFilter.addEventListener('change', () => {
+      currentPage = 1;
       loadPayroll();
-    }
-  });
+    });
+  }
 
-  document.getElementById('process-btn').addEventListener('click', openProcessModal);
-  document.getElementById('confirm-process-btn').addEventListener('click', processPayroll);
-  document.getElementById('export-btn').addEventListener('click', exportPayroll);
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadPayroll();
+      }
+    });
+  }
 
-  document.getElementById('process-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'process-modal') closeProcessModal();
-  });
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadPayroll();
+      }
+    });
+  }
+
+  if (processBtn) processBtn.addEventListener('click', openProcessModal);
+  if (confirmProcessBtn) confirmProcessBtn.addEventListener('click', processPayroll);
+  if (exportBtn) exportBtn.addEventListener('click', exportPayroll);
+
+  if (processModal) {
+    processModal.addEventListener('click', (e) => {
+      if (e.target.id === 'process-modal') closeProcessModal();
+    });
+  }
 }
 
 async function loadPayroll() {
@@ -63,22 +136,36 @@ async function loadPayroll() {
     const params = {
       page: currentPage,
       per_page: 20,
-      month: document.getElementById('month-filter').value,
-      status: document.getElementById('status-filter').value
+      month: document.getElementById('month-filter')?.value || ''
     };
+
+    // Only add status filter for admin view
+    if (isAdminView) {
+      const statusFilter = document.getElementById('status-filter');
+      if (statusFilter) params.status = statusFilter.value;
+    }
 
     Object.keys(params).forEach(key => {
       if (!params[key]) delete params[key];
     });
 
-    const response = await api.payroll.list(params);
+    // Use appropriate endpoint based on role
+    const response = isAdminView 
+      ? await api.payroll.list(params)
+      : await api.payroll.me(params);
+    
     const records = response.data || [];
     const pagination = response.pagination || {};
 
     totalPages = pagination.total_pages || 1;
     updatePaginationInfo(pagination);
-    updateSummary(records);
-    renderPayroll(records);
+    
+    if (isAdminView) {
+      updateSummary(records);
+      renderPayroll(records);
+    } else {
+      renderMyPayslips(records);
+    }
   } catch (error) {
     console.error('Failed to load payroll:', error);
     tbody.innerHTML = `
@@ -90,6 +177,43 @@ async function loadPayroll() {
       </tr>
     `;
   }
+}
+
+function renderMyPayslips(records) {
+  const tbody = document.getElementById('payroll-tbody');
+
+  if (records.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center p-lg">
+          <div class="empty-state">
+            <svg class="empty-state-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="12" x2="12" y1="2" y2="22"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            <p class="empty-state-title">No Payslips</p>
+            <p class="empty-state-text">No payslips available for the selected period.</p>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = records.map(rec => `
+    <tr>
+      <td>${formatPeriod(rec.pay_period_start, rec.pay_period_end)}</td>
+      <td>${formatCurrency(rec.basic_salary)}</td>
+      <td class="text-success">${formatCurrency(rec.allowances)}</td>
+      <td class="text-error">${formatCurrency(rec.deductions)}</td>
+      <td class="font-semibold text-success">${formatCurrency(rec.net_salary)}</td>
+      <td>
+        <span class="badge ${getStatusBadgeClass(rec.status)}">
+          ${rec.status}
+        </span>
+      </td>
+    </tr>
+  `).join('');
 }
 
 function updateSummary(records) {
@@ -220,9 +344,9 @@ function exportPayroll() {
 }
 
 function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(amount || 0);

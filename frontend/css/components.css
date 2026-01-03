@@ -44,8 +44,53 @@
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border-light);
+  display: flex;
+  gap: var(--spacing-md);
 }
 
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpi-icon.primary { background-color: rgba(31, 58, 95, 0.1); color: var(--color-primary); }
+.kpi-icon.secondary { background-color: rgba(47, 183, 178, 0.1); color: var(--color-secondary); }
+.kpi-icon.success { background-color: var(--color-success-light); color: var(--color-success); }
+.kpi-icon.warning { background-color: var(--color-warning-light); color: var(--color-warning); }
+.kpi-icon.error { background-color: var(--color-error-light); color: var(--color-error); }
+
+.kpi-content {
+  flex: 1;
+}
+
+.kpi-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-heading);
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+.kpi-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* Legacy KPI styles */
 .kpi-header {
   display: flex;
   align-items: center;
@@ -59,28 +104,6 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.kpi-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.kpi-icon.primary { background-color: rgba(31, 58, 95, 0.1); color: var(--color-primary); }
-.kpi-icon.secondary { background-color: rgba(47, 183, 178, 0.1); color: var(--color-secondary); }
-.kpi-icon.success { background-color: var(--color-success-light); color: var(--color-success); }
-.kpi-icon.warning { background-color: var(--color-warning-light); color: var(--color-warning); }
-.kpi-icon.error { background-color: var(--color-error-light); color: var(--color-error); }
-
-.kpi-value {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-heading);
-  margin-bottom: var(--spacing-sm);
 }
 
 .kpi-breakdown {

@@ -141,7 +141,8 @@ class LeaveRepository extends BaseRepository
         $results = Database::fetchAll($sql, [$employeeId, $startDate, $endDate, $companyId]);
         
         return array_map(function($row) {
-            $row['remaining_days'] = $row['annual_allocation'] - $row['used_days'];
+            $row['remaining'] = $row['annual_allocation'] - $row['used_days'];
+            $row['total_days'] = $row['annual_allocation'];
             return $row;
         }, $results);
     }

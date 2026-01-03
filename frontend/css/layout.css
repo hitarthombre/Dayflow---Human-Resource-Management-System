@@ -61,6 +61,28 @@
   overflow-y: auto;
 }
 
+/* Sidebar Role Badge */
+.sidebar-role {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  text-align: center;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: rgba(47, 183, 178, 0.3);
+  color: var(--color-secondary);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sidebar.collapsed .sidebar-role {
+  display: none;
+}
+
 .nav-item {
   display: flex;
   align-items: center;

@@ -4,13 +4,18 @@
 
 let currentPage = 1;
 let totalPages = 1;
+let isAdminView = false;
 
 (async function() {
   const isAuth = await auth.requireAuth();
   if (!isAuth) return;
 
-  sidebar.render('sidebar-container', 'attendance');
-  header.render('header-container', 'Attendance');
+  // Check if user is admin/HR
+  const role = auth.user?.role_name;
+  isAdminView = role === 'Admin' || role === 'HR';
+
+  sidebar.render('sidebar-container', isAdminView ? 'attendance' : 'my-attendance');
+  header.render('header-container', isAdminView ? 'Attendance' : 'My Attendance');
 
   // Set default dates (current month)
   const today = new Date();
@@ -18,9 +23,17 @@ let totalPages = 1;
   document.getElementById('date-from').value = firstDay.toISOString().split('T')[0];
   document.getElementById('date-to').value = today.toISOString().split('T')[0];
 
+  // Hide admin-only elements for employees
+  if (!isAdminView) {
+    const addBtn = document.getElementById('add-attendance-btn');
+    if (addBtn) addBtn.style.display = 'none';
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) statusFilter.parentElement.style.display = 'none';
+  }
+
   initEventListeners();
   loadAttendance();
-  loadEmployeesForSelect();
+  if (isAdminView) loadEmployeesForSelect();
 })();
 
 function initEventListeners() {
@@ -71,15 +84,23 @@ async function loadAttendance() {
       page: currentPage,
       per_page: 20,
       date_from: document.getElementById('date-from').value,
-      date_to: document.getElementById('date-to').value,
-      status: document.getElementById('status-filter').value
+      date_to: document.getElementById('date-to').value
     };
+
+    // Only add status filter for admin view
+    if (isAdminView) {
+      params.status = document.getElementById('status-filter').value;
+    }
 
     Object.keys(params).forEach(key => {
       if (!params[key]) delete params[key];
     });
 
-    const response = await api.attendance.list(params);
+    // Use appropriate endpoint based on role
+    const response = isAdminView 
+      ? await api.attendance.list(params)
+      : await api.attendance.me(params);
+    
     const records = response.data || [];
     const pagination = response.pagination || {};
 
@@ -133,7 +154,7 @@ function renderAttendance(records) {
           </div>
         </div>
       </td>
-      <td>${formatDate(rec.date)}</td>
+      <td>${formatDate(rec.attendance_date)}</td>
       <td>${rec.clock_in_time || '-'}</td>
       <td>${rec.clock_out_time || '-'}</td>
       <td>${rec.total_hours ? rec.total_hours + ' hrs' : '-'}</td>
@@ -143,12 +164,14 @@ function renderAttendance(records) {
         </span>
       </td>
       <td>
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="editAttendance(${rec.id})" title="Edit">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-          </svg>
-        </button>
+        ${isAdminView ? `
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editAttendance(${rec.id})" title="Edit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+          </button>
+        ` : '-'}
       </td>
     </tr>
   `).join('');

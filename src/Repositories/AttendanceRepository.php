@@ -20,7 +20,7 @@ class AttendanceRepository extends BaseRepository
     public function findByEmployeeAndDate(int $employeeId, string $date, int $companyId): ?array
     {
         return Database::fetchOne(
-            'SELECT * FROM attendance WHERE employee_id = ? AND date = ? AND company_id = ?',
+            'SELECT * FROM attendance WHERE employee_id = ? AND attendance_date = ? AND company_id = ?',
             [$employeeId, $date, $companyId]
         );
     }
@@ -39,12 +39,12 @@ class AttendanceRepository extends BaseRepository
         }
         
         if (!empty($filters['date_from'])) {
-            $where[] = 'a.date >= ?';
+            $where[] = 'a.attendance_date >= ?';
             $params[] = $filters['date_from'];
         }
         
         if (!empty($filters['date_to'])) {
-            $where[] = 'a.date <= ?';
+            $where[] = 'a.attendance_date <= ?';
             $params[] = $filters['date_to'];
         }
         
@@ -65,7 +65,7 @@ class AttendanceRepository extends BaseRepository
                 FROM attendance a
                 JOIN employees e ON a.employee_id = e.id
                 WHERE {$whereClause}
-                ORDER BY a.date DESC, a.clock_in_time DESC
+                ORDER BY a.attendance_date DESC, a.clock_in_time DESC
                 LIMIT {$perPage} OFFSET {$offset}";
         
         $data = Database::fetchAll($sql, $params);
@@ -90,7 +90,7 @@ class AttendanceRepository extends BaseRepository
      */
     public function clockIn(int $employeeId, int $companyId, string $date, string $time): int
     {
-        $sql = 'INSERT INTO attendance (company_id, employee_id, date, clock_in_time, status, created_at) 
+        $sql = 'INSERT INTO attendance (company_id, employee_id, attendance_date, clock_in_time, status, created_at) 
                 VALUES (?, ?, ?, ?, ?, NOW())';
         
         Database::execute($sql, [$companyId, $employeeId, $date, $time, 'present']);
@@ -132,7 +132,7 @@ class AttendanceRepository extends BaseRepository
                     SUM(CASE WHEN status = 'late' THEN 1 ELSE 0 END) as late_days,
                     SUM(COALESCE(total_hours, 0)) as total_hours
                 FROM attendance 
-                WHERE employee_id = ? AND company_id = ? AND date BETWEEN ? AND ?";
+                WHERE employee_id = ? AND company_id = ? AND attendance_date BETWEEN ? AND ?";
         
         return Database::fetchOne($sql, [$employeeId, $companyId, $startDate, $endDate]) ?? [
             'total_days' => 0,
